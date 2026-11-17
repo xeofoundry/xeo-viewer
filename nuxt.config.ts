@@ -1,8 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  modules: ['@nuxt/eslint'],
   ssr: false,
+  devtools: { enabled: true },
+  compatibilityDate: '2025-07-15',
   // `nuxt build` emits plain static files to .output/public, no Node server
-  nitro: { preset: 'static' }
+  nitro: { preset: 'static' },
+  eslint: { config: { stylistic: true } },
 })
