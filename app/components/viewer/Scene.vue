@@ -19,6 +19,8 @@ onMounted(() => {
     shadowVisible: false,
   })
 
+  setFastNavEnabled(instance, true)
+
   if (import.meta.dev) {
     loading.value = true
 
