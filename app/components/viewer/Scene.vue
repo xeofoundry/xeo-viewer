@@ -5,6 +5,7 @@ const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
 const navCubeCanvas = useTemplateRef<HTMLCanvasElement>('navCubeCanvas')
 
 const viewer = useViewer()
+const loading = ref(false)
 
 onMounted(() => {
   const instance = new Viewer({ canvasElement: canvas.value!, transparent: true })
@@ -19,13 +20,19 @@ onMounted(() => {
   })
 
   if (import.meta.dev) {
+    loading.value = true
+
     const model = new XKTLoaderPlugin(instance).load({
       id: 'otc-conference-center',
       src: '/models/otc-conference-center.xkt',
       edges: true,
     })
 
-    model.on('loaded', () => fitView(instance))
+    model.on('loaded', () => {
+      loading.value = false
+      fitView(instance)
+    })
+    model.on('error', () => loading.value = false)
   }
 
   viewer.value = instance
@@ -50,6 +57,21 @@ onBeforeUnmount(() => {
         ref="navCubeCanvas"
         class="absolute -top-5 -left-5 size-26"
       />
+    </div>
+
+    <div
+      v-if="loading"
+      role="status"
+      class="pointer-events-none absolute inset-0 flex items-center justify-center"
+    >
+      <div class="flex items-center gap-2 rounded-[21px] bg-surface/70 px-4 py-3 text-white shadow-sm backdrop-blur-md">
+        <UIcon
+          name="i-lucide-loader-circle"
+          class="size-5 animate-spin"
+        />
+
+        Loading model…
+      </div>
     </div>
   </div>
 </template>

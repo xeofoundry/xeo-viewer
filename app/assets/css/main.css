@@ -16,3 +16,8 @@
     cursor: pointer;
   }
 }
+
+/* xeokit's built-in loading spinner has no off switch; the app shows its own indicator instead */
+.sk-fading-circle {
+  display: none;
+}
