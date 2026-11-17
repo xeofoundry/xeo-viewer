@@ -2,6 +2,7 @@
 const viewer = useViewer()
 
 const open = useOpenPanels()
+const sliceMode = useSliceMode()
 const isOrtho = ref(false)
 
 function toggleProjection() {
@@ -92,6 +93,19 @@ function viewFit() {
           variant="ghost"
           aria-label="View fit"
           @click="viewFit"
+        />
+      </UTooltip>
+
+      <UTooltip text="Slice objects">
+        <UButton
+          icon="i-lucide-scissors"
+          size="xl"
+          square
+          :color="sliceMode ? 'primary' : 'neutral'"
+          :variant="sliceMode ? 'solid' : 'ghost'"
+          aria-label="Slice objects"
+          :aria-pressed="sliceMode"
+          @click="sliceMode = !sliceMode"
         />
       </UTooltip>
     </div>

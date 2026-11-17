@@ -40,6 +40,11 @@ const columns = {
           @close="open[panel.id] = false"
         />
       </div>
+
+      <!-- Without row-start-1, grid auto-placement would push it below the right column, which precedes it in the DOM -->
+      <div class="col-span-12 flex justify-center md:col-span-4 md:col-start-5 md:row-start-1 2xl:col-span-6 2xl:col-start-4">
+        <ViewerSlices />
+      </div>
     </div>
 
     <footer class="hidden h-6 justify-end md:flex">
