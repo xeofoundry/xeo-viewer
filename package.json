@@ -12,6 +12,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@iconify-json/lucide": "^1.2.155",
     "@nuxt/ui": "4.12.2",
     "@tiptap/core": "^3.34.0",
     "@tiptap/extension-bubble-menu": "^3.34.0",
@@ -30,6 +31,7 @@
     "@tiptap/starter-kit": "^3.34.0",
     "@tiptap/suggestion": "^3.34.0",
     "@tiptap/vue-3": "^3.34.0",
+    "@vueuse/core": "^14.4.0",
     "@xeokit/xeokit-sdk": "^2.6.114",
     "nuxt": "^4.6.4",
     "tailwindcss": "^4.3.5",
