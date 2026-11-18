@@ -16,6 +16,9 @@ onMounted(() => {
 
   Object.assign(instance.scene.highlightMaterial, { fill: true, fillAlpha: 0.1, edges: true, edgeAlpha: 1, edgeColor: [1, 1, 0] })
 
+  // With double-click fly-to on, xeokit holds every 'picked' event 250 ms to tell a click from a double click
+  instance.cameraControl.doublePickFlyTo = false
+
   new NavCubePlugin(instance, {
     canvasElement: navCubeCanvas.value!,
     color: '#ffffff',
