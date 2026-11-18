@@ -5,6 +5,7 @@ const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
 const navCubeCanvas = useTemplateRef<HTMLCanvasElement>('navCubeCanvas')
 
 const route = useRoute()
+const { baseURL } = useRuntimeConfig().app
 const viewer = useViewer()
 const { loadUrl } = useModels()
 
@@ -32,7 +33,7 @@ onMounted(() => {
   const { model, metadata } = route.query
 
   if (typeof model === 'string') {
-    loadUrl(model === 'dev' ? '/models/otc-conference-center.xkt' : model, typeof metadata === 'string' ? metadata : undefined)
+    loadUrl(model === 'dev' ? `${baseURL}models/otc-conference-center.xkt` : model, typeof metadata === 'string' ? metadata : undefined)
   }
 })
 
