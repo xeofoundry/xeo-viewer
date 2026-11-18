@@ -272,22 +272,6 @@ function revealObject() {
   }
 }
 
-// Scene events fire once per entity, so a bulk change is coalesced into one refresh per frame
-function perFrame(run: () => void) {
-  let scheduled = false
-
-  return () => {
-    if (scheduled) return
-
-    scheduled = true
-
-    requestAnimationFrame(() => {
-      scheduled = false
-      run()
-    })
-  }
-}
-
 const scheduleRebuild = perFrame(rebuild)
 const scheduleVisibleRefresh = perFrame(refreshVisible)
 const scheduleSelectedRefresh = perFrame(refreshSelected)
