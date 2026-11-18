@@ -25,3 +25,7 @@ Build the application for production:
 ```bash
 pnpm build
 ```
+
+## License
+
+This project uses the [GNU Affero General Public License v3.0](LICENSE).
