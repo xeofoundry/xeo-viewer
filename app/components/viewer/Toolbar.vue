@@ -72,13 +72,11 @@ function viewFit() {
 
 <template>
   <header class="pointer-events-auto flex items-center gap-4 self-start rounded-[21px] bg-surface/70 p-3 text-white shadow-sm backdrop-blur-md">
-    <div class="flex items-center gap-2">
-      <ViewerLogo class="h-8 w-11" />
-
-      <span class="text-lg leading-6 font-black">
-        xeokit
-      </span>
-    </div>
+    <img
+      src="/xeokit-logo.svg"
+      alt="xeokit"
+      class="h-8"
+    >
 
     <div class="ml-3 flex items-center gap-1">
       <UTooltip
