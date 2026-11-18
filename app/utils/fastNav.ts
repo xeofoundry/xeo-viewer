@@ -1,7 +1,7 @@
 import { FastNavPlugin, type Viewer } from '@xeokit/xeokit-sdk'
 
 // xeovision's default "low" preset hides these types while the camera moves
-const HIDDEN_TYPES = [
+const HIDDEN_TYPES = new Set([
   'IfcFurniture',
   'IfcFurnishingElement',
   'IfcDiscreteAccessory',
@@ -11,7 +11,7 @@ const HIDDEN_TYPES = [
   'IfcFlowTerminal',
   'IfcFlowFitting',
   'IfcFlowController',
-]
+])
 
 // SDK internals that FastNavPlugin toggles but its destroy() does not restore
 interface FastNavInternals {
@@ -25,10 +25,12 @@ interface SceneInternals {
 
 let plugin: FastNavPlugin | undefined
 
-function hideTypesWhileMoving({ scene, metaScene }: Viewer) {
-  let hidden = HIDDEN_TYPES
-    .flatMap(type => Object.keys(metaScene.metaObjectsByType[type] ?? {}))
-    .filter(id => scene.objects[id]?.visible)
+function hideTypesWhileMoving(viewer: Viewer) {
+  const { scene } = viewer
+
+  let hidden = [...objectTypes(viewer)]
+    .filter(([id, type]) => HIDDEN_TYPES.has(type) && scene.objects[id]?.visible)
+    .map(([id]) => id)
 
   scene.setObjectsVisible(hidden, false)
 

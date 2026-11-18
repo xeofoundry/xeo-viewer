@@ -1,4 +1,4 @@
-import type { Viewer } from '@xeokit/xeokit-sdk'
+import type { SceneModel, Viewer } from '@xeokit/xeokit-sdk'
 
 export interface IfcMetaObject {
   id: string | number
@@ -59,6 +59,22 @@ const STRUCTURAL_FIELDS = new Set(['id', 'name', 'type', 'parent', 'children', '
 
 export const modelMetadata = (viewer: Viewer, modelId: string) =>
   (viewer.scene.models[modelId] as { metadata?: IfcMetadata } | undefined)?.metadata
+
+export function objectTypes(viewer: Viewer) {
+  const types = new Map<string, string>()
+
+  for (const [modelId, model] of Object.entries(viewer.scene.models)) {
+    const typeBySourceId = new Map(modelMetadata(viewer, modelId)?.metaObjects?.map(object => [String(object.id), object.type]))
+
+    for (const entity of Object.values((model as unknown as SceneModel).objects)) {
+      const type = typeBySourceId.get(entity.originalSystemId)
+
+      if (type) types.set(String(entity.id), type)
+    }
+  }
+
+  return types
+}
 
 function stringifyValue(value: unknown) {
   if (value == null) return ''
