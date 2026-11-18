@@ -11,5 +11,8 @@ export default defineAppConfig({
     checkbox: {
       slots: { indicator: 'text-white' },
     },
+    tabs: {
+      compoundVariants: [{ color: 'primary', variant: 'pill', class: { trigger: 'data-[state=active]:text-white' } }],
+    },
   },
 })

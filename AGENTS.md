@@ -1,0 +1,5 @@
+## Code Style
+
+- Comments: almost none. New code gets zero comments by default. Add one short line only when leaving it out would likely cause a bug: a hidden constraint, a gotcha or a security reason. No comments on props, type fields, endpoints, test workflows or steps the code already shows, and no copying a neighbouring file's comment into a new one. Before finishing, go through the comment lines you added in the diff and cut them down.
+- Blank lines: split code into logical blocks with one blank line between them, so no function or template reads as a wall of code. Typical blocks are the imports, props and state, each distinct step, and the return or the emitted result. Keep lines that belong together in one block (a chained query, one object literal, a guard with its throw) and never put blank lines inside strings or template literals or two in a row.
+- Pages: files in `apps/web/app/pages` hold only routing, that is `definePageMeta`, route params and one component from `components/<area>/`, as `pages/login.vue` renders `<AuthLoginForm />`. Content, state and logic live in that component.

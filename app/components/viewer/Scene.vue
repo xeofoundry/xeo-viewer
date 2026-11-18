@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { NavCubePlugin, Viewer, XKTLoaderPlugin } from '@xeokit/xeokit-sdk'
+import { NavCubePlugin, Viewer } from '@xeokit/xeokit-sdk'
 
 const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
 const navCubeCanvas = useTemplateRef<HTMLCanvasElement>('navCubeCanvas')
 
+const route = useRoute()
 const viewer = useViewer()
-const loading = ref(false)
+const { loadUrl } = useModels()
 
 onMounted(() => {
   const instance = new Viewer({ canvasElement: canvas.value!, transparent: true })
 
   // Only the direction matters: fitView keeps it and refits the distance to the model
   instance.camera.eye = [-10, 7, 17]
+
+  Object.assign(instance.scene.highlightMaterial, { fill: true, fillAlpha: 0.1, edges: true, edgeAlpha: 1, edgeColor: [1, 1, 0] })
 
   new NavCubePlugin(instance, {
     canvasElement: navCubeCanvas.value!,
@@ -21,23 +24,13 @@ onMounted(() => {
 
   setFastNavEnabled(instance, true)
 
-  if (import.meta.dev) {
-    loading.value = true
-
-    const model = new XKTLoaderPlugin(instance).load({
-      id: 'otc-conference-center',
-      src: '/models/otc-conference-center.xkt',
-      edges: true,
-    })
-
-    model.on('loaded', () => {
-      loading.value = false
-      fitView(instance)
-    })
-    model.on('error', () => loading.value = false)
-  }
-
   viewer.value = instance
+
+  const { model, metadata } = route.query
+
+  if (typeof model === 'string') {
+    loadUrl(model === 'dev' ? '/models/otc-conference-center.xkt' : model, typeof metadata === 'string' ? metadata : undefined)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -59,21 +52,6 @@ onBeforeUnmount(() => {
         ref="navCubeCanvas"
         class="absolute -top-5 -left-5 size-26"
       />
-    </div>
-
-    <div
-      v-if="loading"
-      role="status"
-      class="pointer-events-none absolute inset-0 flex items-center justify-center"
-    >
-      <div class="flex items-center gap-2 rounded-[21px] bg-surface/70 px-4 py-3 text-white shadow-sm backdrop-blur-md">
-        <UIcon
-          name="i-lucide-loader-circle"
-          class="size-5 animate-spin"
-        />
-
-        Loading model…
-      </div>
     </div>
   </div>
 </template>

@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui'],
   ssr: false,
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   app: { head: { htmlAttrs: { class: 'dark' } } },
   css: ['~/assets/css/main.css'],
   // Always dark: the scene background is fixed dark, and a stored color-mode preference would override it

@@ -38,7 +38,10 @@ const columns = {
           :default-width="panel.defaultWidth"
           :min-height="panel.minHeight"
           @close="open[panel.id] = false"
-        />
+        >
+          <ViewerExplorer v-if="panel.id === 'explorer'" />
+          <ViewerProperties v-else-if="panel.id === 'properties'" />
+        </ViewerPanel>
       </div>
 
       <!-- Without row-start-1, grid auto-placement would push it below the right column, which precedes it in the DOM -->
