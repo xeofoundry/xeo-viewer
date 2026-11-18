@@ -10,6 +10,12 @@ const models = ref<LoadedModel[]>([])
 
 let loader: XKTLoaderPlugin | undefined
 
+// A new viewer (HMR remount of the scene) starts empty, and loads still pending in the old one never settle
+watch(useViewer(), () => {
+  models.value = []
+  pending.value = 0
+}, { flush: 'sync' })
+
 const stem = (name: string) => name.replace(/\.[^.]*$/, '').toLowerCase()
 
 async function fetchOk(url: string) {
@@ -51,6 +57,8 @@ export function useModels() {
     try {
       const model = await parse(instance, ...await read())
 
+      if (viewer.value !== instance) return
+
       models.value = [...models.value, { id: String(model.id), name }]
       fitView(instance)
     }
@@ -58,7 +66,7 @@ export function useModels() {
       toast.add({ title: `Could not load ${name}`, description: error instanceof Error ? error.message : String(error), color: 'error', icon: 'i-lucide-circle-alert' })
     }
     finally {
-      pending.value--
+      if (viewer.value === instance) pending.value--
     }
   }
 
