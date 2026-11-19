@@ -28,6 +28,12 @@
   }
 }
 
+/* Nuxt UI draws focus outlines with utility classes, which a base-layer rule cannot override */
+:focus,
+:focus-visible {
+  outline: none !important;
+}
+
 /* xeokit's built-in loading spinner has no off switch; the app shows its own indicator instead */
 .sk-fading-circle {
   display: none;
