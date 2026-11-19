@@ -108,17 +108,11 @@ export function useModels() {
     ]))
   }
 
-  function removeModel(id: string) {
-    viewer.value?.scene.models[id]?.destroy()
-    models.value = models.value.filter(model => model.id !== id)
-  }
-
   return {
     models: readonly(models),
     loading: computed(() => pending.value > 0),
     hasModels: computed(() => models.value.length > 0),
     loadFiles,
     loadUrl,
-    removeModel,
   }
 }

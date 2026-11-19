@@ -3,8 +3,7 @@ import type { TabsItem } from '@nuxt/ui'
 import type { SceneModel } from '@xeokit/xeokit-sdk'
 
 const viewer = useViewer()
-const { models, removeModel } = useModels()
-const { clearSelection } = useProperties()
+const { models } = useModels()
 
 const tab = ref('objects')
 
@@ -45,11 +44,6 @@ function setVisible(id: string, visible: boolean) {
 
   if (model) viewer.value!.scene.setObjectsVisible(Object.keys(model.objects), visible)
 }
-
-function remove(id: string) {
-  clearSelection()
-  removeModel(id)
-}
 </script>
 
 <template>
@@ -64,8 +58,15 @@ function remove(id: string) {
         <li
           v-for="model in models"
           :key="model.id"
-          class="flex items-center gap-2 rounded pl-1 hover:bg-white/10"
+          class="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-white/10"
         >
+          <span
+            class="flex-1 truncate"
+            :title="model.name"
+          >
+            {{ model.name }}
+          </span>
+
           <input
             type="checkbox"
             class="shrink-0 cursor-pointer accent-violet-400"
@@ -74,22 +75,6 @@ function remove(id: string) {
             :aria-label="`Show ${model.name}`"
             @change="setVisible(model.id, ($event.target as HTMLInputElement).checked)"
           >
-
-          <span
-            class="flex-1 truncate"
-            :title="model.name"
-          >
-            {{ model.name }}
-          </span>
-
-          <UButton
-            icon="i-lucide-trash"
-            size="xs"
-            color="neutral"
-            variant="ghost"
-            :aria-label="`Remove ${model.name}`"
-            @click="remove(model.id)"
-          />
         </li>
       </ul>
     </template>
