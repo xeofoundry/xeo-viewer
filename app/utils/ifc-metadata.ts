@@ -56,7 +56,25 @@ export interface PropertyObject {
   propertySets: PropertySet[]
 }
 
+export interface PropertySummary {
+  values: string[]
+  dataType: PropertyDataType
+}
+
+export interface PropertyIndex {
+  propsByObject: Map<string, Map<string, string[]>>
+  storeyByObject: Map<string, string>
+  properties: Map<string, PropertySummary>
+  classes: string[]
+}
+
+// The index stores each object's IFC class as a property under this name, next to its psets
+export const CLASS_PROPERTY = 'Type'
+
 const STRUCTURAL_FIELDS = new Set(['id', 'name', 'type', 'parent', 'children', 'propertySetIds'])
+const MAX_SUGGESTIONS = 100
+
+export const isStorey = (type?: string) => type === 'IfcBuildingStorey' || type === 'IfcFacilityPart'
 
 const SI_SYMBOLS: Record<string, string> = {
   'ampere': 'A', 'becquerel': 'Bq', 'candela': 'cd', 'coulomb': 'C', 'cubic metre': 'm³', 'degree celsius': '°C',
@@ -223,4 +241,101 @@ export function buildModelPropertyObject(metadata: IfcMetadata | undefined, fall
     attributes: base?.attributes ?? {},
     propertySets: [...base?.propertySets ?? [], ...header.length ? [{ name: 'File Header', properties: header }] : []],
   }
+}
+
+function storeyResolver(metaObjects: IfcMetaObject[], byId: Map<string, IfcMetaObject>) {
+  const parents = new Map<IfcMetaObject, IfcMetaObject>()
+
+  for (const object of metaObjects) {
+    for (const childIndex of object.children ?? []) {
+      const child = metaObjects[childIndex]
+
+      if (child) parents.set(child, object)
+    }
+
+    const parent = object.parent != null ? byId.get(String(object.parent)) : undefined
+
+    if (parent && !parents.has(object)) parents.set(object, parent)
+  }
+
+  return (start: IfcMetaObject) => {
+    const seen = new Set<IfcMetaObject>()
+    let object: IfcMetaObject | undefined = start
+
+    while (object && !seen.has(object)) {
+      if (isStorey(object.type)) return object.name || String(object.id)
+
+      seen.add(object)
+      object = parents.get(object)
+    }
+
+    return undefined
+  }
+}
+
+export function summarizeProperties(objects: Iterable<Map<string, string[]>>): Map<string, PropertySummary> {
+  const valuesByName = new Map<string, Set<string>>()
+
+  for (const props of objects) {
+    for (const [name, values] of props) {
+      let set = valuesByName.get(name)
+
+      if (!set) valuesByName.set(name, set = new Set())
+
+      for (const value of values) {
+        if (value && set.size < MAX_SUGGESTIONS) set.add(value)
+      }
+    }
+  }
+
+  return new Map([...valuesByName.keys()].sort((a, b) => a.localeCompare(b)).map((name) => {
+    const values = [...valuesByName.get(name)!].sort()
+
+    return [name, { values, dataType: detectDataType(values) }]
+  }))
+}
+
+export function buildPropertyIndex(viewer: Viewer): PropertyIndex {
+  const propsByObject = new Map<string, Map<string, string[]>>()
+  const storeyByObject = new Map<string, string>()
+
+  for (const [modelId, model] of Object.entries(viewer.scene.models)) {
+    const metadata = modelMetadata(viewer, modelId)
+    const metaObjects = metadata?.metaObjects ?? []
+    const byId = new Map(metaObjects.map(object => [String(object.id), object]))
+    const propertySets = new Map((metadata?.propertySets ?? []).map(set => [String(set.id), set]))
+    const storeyOf = storeyResolver(metaObjects, byId)
+
+    for (const entity of Object.values((model as unknown as SceneModel).objects)) {
+      const id = String(entity.id)
+      const metaObject = byId.get(entity.originalSystemId)
+      const props = new Map([['Name', [metaObject?.name ?? '']], [CLASS_PROPERTY, [metaObject?.type ?? '']]])
+
+      for (const setId of metaObject?.propertySetIds ?? []) {
+        for (const entry of propertySets.get(String(setId))?.properties ?? []) {
+          const property = typeof entry === 'number' ? metadata?.properties?.[entry] : entry
+
+          if (!property?.name) continue
+
+          const value = stringifyValue(property.value)
+          const values = props.get(property.name)
+
+          if (values) values.push(value)
+          else props.set(property.name, [value])
+        }
+      }
+
+      propsByObject.set(id, props)
+
+      const storey = metaObject && storeyOf(metaObject)
+
+      if (storey) storeyByObject.set(id, storey)
+    }
+  }
+
+  const classes = new Set([...propsByObject.values()].map(props => props.get(CLASS_PROPERTY)![0]!))
+
+  classes.delete('')
+
+  return { propsByObject, storeyByObject, properties: summarizeProperties(propsByObject.values()), classes: [...classes].sort() }
 }

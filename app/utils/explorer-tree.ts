@@ -52,7 +52,6 @@ const EMPTY_LABELS: Record<ExplorerTab, string> = { objects: 'No objects', class
 const NON_TREE_TYPES = new Set(['IfcPropertySet', 'IfcPropertyEnumeratedValue'])
 const BUILDING_TYPES = new Set(['IfcBuilding', 'IfcFacility', 'IfcBridge', 'IfcRoad', 'IfcRailway', 'IfcMarineFacility'])
 
-const isStorey = (type?: string) => type === 'IfcBuildingStorey' || type === 'IfcFacilityPart'
 const isBuilding = (type?: string) => !!type && BUILDING_TYPES.has(type)
 const isTreeType = (metaObject: IfcMetaObject) => !!metaObject.type && !NON_TREE_TYPES.has(metaObject.type)
 const nodeName = (metaObject: IfcMetaObject) => metaObject.name || metaObject.type || String(metaObject.id)

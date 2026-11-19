@@ -8,6 +8,15 @@ interface LoadedModel {
 const pending = ref(0)
 const models = ref<LoadedModel[]>([])
 
+export const loadedModels = readonly(models)
+
+// Costly on large models, so it is built on first read and rebuilt only after models load or unload
+export const propertyIndex = computed(() => {
+  const viewer = useViewer().value
+
+  return viewer && models.value.length ? buildPropertyIndex(viewer) : undefined
+})
+
 let loader: XKTLoaderPlugin | undefined
 
 // A new viewer (HMR remount of the scene) starts empty, and loads still pending in the old one never settle
@@ -109,7 +118,7 @@ export function useModels() {
   }
 
   return {
-    models: readonly(models),
+    models: loadedModels,
     loading: computed(() => pending.value > 0),
     hasModels: computed(() => models.value.length > 0),
     loadFiles,

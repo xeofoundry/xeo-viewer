@@ -9,6 +9,12 @@ const { showObject, hide, clearSelection } = useProperties()
 const open = useOpenPanels()
 const tool = useToolMode()
 const { setMeasuring } = useMeasurements()
+const { activeCount: filterCount } = useFilters()
+const { activeCount: groupingCount } = useGrouping()
+
+// Filters and grouping keep acting on the model after their panel closes
+const badges = computed<Partial<Record<string, number>>>(() => ({ filters: filterCount.value, grouping: groupingCount.value }))
+
 const isOrtho = ref(false)
 
 const tools = [
@@ -109,16 +115,24 @@ function viewFit() {
         :key="panel.id"
         :text="panel.title"
       >
-        <UButton
-          :icon="panel.icon"
-          size="xl"
-          square
-          :color="open[panel.id] ? 'primary' : 'neutral'"
-          :variant="open[panel.id] ? 'solid' : 'ghost'"
-          :aria-label="panel.title"
-          :aria-pressed="!!open[panel.id]"
-          @click="open[panel.id] = !open[panel.id]"
-        />
+        <UChip
+          :text="badges[panel.id]"
+          :show="!!badges[panel.id]"
+          color="neutral"
+          size="3xl"
+          inset
+        >
+          <UButton
+            :icon="panel.icon"
+            size="xl"
+            square
+            :color="open[panel.id] ? 'primary' : 'neutral'"
+            :variant="open[panel.id] ? 'solid' : 'ghost'"
+            :aria-label="panel.title"
+            :aria-pressed="!!open[panel.id]"
+            @click="open[panel.id] = !open[panel.id]"
+          />
+        </UChip>
       </UTooltip>
     </div>
 

@@ -41,6 +41,9 @@ const columns = {
         >
           <ViewerExplorer v-if="panel.id === 'explorer'" />
           <ViewerProperties v-else-if="panel.id === 'properties'" />
+          <!-- Mounted only while open, so the property index is not built until someone filters or groups -->
+          <ViewerFilters v-else-if="panel.id === 'filters' && open.filters" />
+          <ViewerGrouping v-else-if="panel.id === 'grouping' && open.grouping" />
         </ViewerPanel>
       </div>
 
