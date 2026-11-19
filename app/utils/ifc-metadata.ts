@@ -29,6 +29,7 @@ interface IfcUnit {
   name?: string | null
   className?: string | null
   unitEnum?: string | null
+  prefix?: string | null
 }
 
 export interface IfcMetadata {
@@ -56,6 +57,24 @@ export interface PropertyObject {
 }
 
 const STRUCTURAL_FIELDS = new Set(['id', 'name', 'type', 'parent', 'children', 'propertySetIds'])
+
+const SI_SYMBOLS: Record<string, string> = {
+  'ampere': 'A', 'becquerel': 'Bq', 'candela': 'cd', 'coulomb': 'C', 'cubic metre': 'm³', 'degree celsius': '°C',
+  'farad': 'F', 'gram': 'g', 'gray': 'Gy', 'henry': 'H', 'hertz': 'Hz', 'joule': 'J', 'kelvin': 'K', 'lumen': 'lm',
+  'lux': 'lx', 'metre': 'm', 'mole': 'mol', 'newton': 'N', 'ohm': 'Ω', 'pascal': 'Pa', 'radian': 'rad', 'second': 's',
+  'siemens': 'S', 'sievert': 'Sv', 'square metre': 'm²', 'steradian': 'sr', 'tesla': 'T', 'volt': 'V', 'watt': 'W', 'weber': 'Wb',
+}
+
+const CONVERSION_SYMBOLS: Record<string, string> = {
+  'foot': 'ft', 'square foot': 'ft²', 'cubic foot': 'ft³', 'inch': 'in', 'square inch': 'in²', 'cubic inch': 'in³',
+  'yard': 'yd', 'square yard': 'yd²', 'cubic yard': 'yd³', 'mile': 'mi', 'acre': 'ac', 'gallon': 'gal', 'pound': 'lb',
+  'degree': '°', 'degree fahrenheit': '°F',
+}
+
+const SI_PREFIXES: Record<string, string> = {
+  EXA: 'E', PETA: 'P', TERA: 'T', GIGA: 'G', MEGA: 'M', KILO: 'k', HECTO: 'h', DECA: 'da',
+  DECI: 'd', CENTI: 'c', MILLI: 'm', MICRO: 'µ', NANO: 'n', PICO: 'p', FEMTO: 'f', ATTO: 'a',
+}
 
 export const modelMetadata = (viewer: Viewer, modelId: string) =>
   (viewer.scene.models[modelId] as { metadata?: IfcMetadata } | undefined)?.metadata
@@ -91,18 +110,28 @@ function unitEnumOf(ifcValueType: string | undefined) {
   return quantity && `${quantity === 'Weight' ? 'MASS' : quantity.toUpperCase()}UNIT`
 }
 
-function unitName(units: IfcUnit[], property: IfcProperty) {
-  if (property.unit != null) return units[property.unit]?.name ?? null
+// Converters emit both full IFC names (METRE, SQUARE FOOT) and ready symbols (m2, kg with prefix KILO),
+// so the prefix is only added to a full SI name, never to a symbol that already carries it
+function unitSymbol(unit: IfcUnit | undefined) {
+  if (!unit?.name) return null
+
+  const name = unit.name.toLowerCase().replace(/[\s_]+/g, ' ')
+
+  if (SI_SYMBOLS[name]) return (SI_PREFIXES[unit.prefix ?? ''] ?? '') + SI_SYMBOLS[name]
+
+  return CONVERSION_SYMBOLS[name] ?? unit.name.replace(/2$/, '²').replace(/3$/, '³')
+}
+
+function propertyUnit(units: IfcUnit[], property: IfcProperty) {
+  if (property.unit != null) return unitSymbol(units[property.unit])
 
   const unitEnum = unitEnumOf(property.ifcValueType)
 
   if (!unitEnum) return null
 
   // Imperial models list both the assigned conversion-based unit (FOOT) and the SI unit it derives from (METRE)
-  const unit = units.find(unit => unit.unitEnum === unitEnum && unit.className === 'IfcConversionBasedUnit')
-    ?? units.find(unit => unit.unitEnum === unitEnum)
-
-  return unit?.name ?? null
+  return unitSymbol(units.find(unit => unit.unitEnum === unitEnum && unit.className === 'IfcConversionBasedUnit')
+    ?? units.find(unit => unit.unitEnum === unitEnum))
 }
 
 export function buildPropertyObject(metadata: IfcMetadata | undefined, sourceId: string): PropertyObject | undefined {
@@ -122,7 +151,7 @@ export function buildPropertyObject(metadata: IfcMetadata | undefined, sourceId:
     const properties = (set.properties ?? []).map((entry) => {
       const property = (typeof entry === 'number' ? allProperties[entry] : entry) ?? {}
 
-      return { name: property.name ?? '', value: stringifyValue(property.value), unit: unitName(units, property) }
+      return { name: property.name ?? '', value: stringifyValue(property.value), unit: propertyUnit(units, property) }
     })
 
     return [{ name: set.name ?? '', properties }]
