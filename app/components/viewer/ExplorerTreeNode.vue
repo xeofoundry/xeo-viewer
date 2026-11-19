@@ -153,7 +153,7 @@ function onContextMenu(event: MouseEvent) {
       <input
         v-if="hasObjects"
         type="checkbox"
-        class="shrink-0 cursor-pointer accent-violet-400"
+        class="shrink-0 cursor-pointer accent-primary"
         :checked="checked"
         :indeterminate="indeterminate"
         :aria-label="`Show ${node.name}`"

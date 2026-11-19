@@ -69,7 +69,7 @@ function setVisible(id: string, visible: boolean) {
 
           <input
             type="checkbox"
-            class="shrink-0 cursor-pointer accent-violet-400"
+            class="shrink-0 cursor-pointer accent-primary"
             :checked="visibility[model.id] ?? true"
             :indeterminate="visibility[model.id] === 'indeterminate'"
             :aria-label="`Show ${model.name}`"
