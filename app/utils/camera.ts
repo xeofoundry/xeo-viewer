@@ -1,9 +1,13 @@
 import { math, type Viewer } from '@xeokit/xeokit-sdk'
 
+// xeokit's typings declare Scene.canvas as a bare Component, without its [x, y, width, height] boundary
+const canvasSize = (scene: Viewer['scene']) => (scene.canvas as unknown as { boundary: number[] }).boundary.slice(2) as [number, number]
+
 // World-space half width and height of the view at the look point. Mirrors xeokit:
 // Perspective fov is vertical (default fovAxis 'min'), Ortho scale spans the longer canvas side.
 export function viewHalfExtent({ camera, scene }: Viewer): [number, number] {
-  const aspect = scene.canvas.boundary[2]! / scene.canvas.boundary[3]!
+  const [width, height] = canvasSize(scene)
+  const aspect = width / height
 
   if (camera.projection === 'ortho') {
     const half = camera.ortho.scale / 2
@@ -17,7 +21,10 @@ export function viewHalfExtent({ camera, scene }: Viewer): [number, number] {
   return [halfHeight * aspect, halfHeight]
 }
 
-export const HOME_DIRECTION = [-10, 7, 17]
+export const HOME_DIRECTION = [-10, 10, 17]
+
+// Height of the toolbar band over the top of the canvas, so the model is centered in the area below it
+const TOP_INSET = 72
 
 // xeokit fits the center of the 3D bounding box, which leaves models with empty box corners visibly
 // off-center, so afterwards pan until the on-screen footprint of the visible objects is centered.
@@ -37,11 +44,14 @@ export function fitView(viewer: Viewer, duration = 0, direction?: number[]) {
   cameraFlight.jumpTo({ aabb: scene.getAABB(scene.visibleObjectIds) })
 
   // In perspective a pan step is only exact at the look depth, so repeat it to converge on steep views
+  // NDC spans 2 units over the canvas height, so half the inset in pixels is TOP_INSET / height in NDC
+  const targetY = -TOP_INSET / canvasSize(scene)[1]
+
   for (let step = 0; step < 3; step++) {
     const [centerX, centerY] = footprintCenter(viewer)
     const [halfWidth, halfHeight] = viewHalfExtent(viewer)
 
-    camera.pan([-centerX * halfWidth, centerY * halfHeight, 0])
+    camera.pan([-centerX * halfWidth, (centerY - targetY) * halfHeight, 0])
   }
 
   if (duration > 0) {
