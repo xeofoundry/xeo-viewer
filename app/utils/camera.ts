@@ -17,14 +17,22 @@ export function viewHalfExtent({ camera, scene }: Viewer): [number, number] {
   return [halfHeight * aspect, halfHeight]
 }
 
+export const HOME_DIRECTION = [-10, 7, 17]
+
 // xeokit fits the center of the 3D bounding box, which leaves models with empty box corners visibly
 // off-center, so afterwards pan until the on-screen footprint of the visible objects is centered.
-export function fitView(viewer: Viewer, duration = 0) {
+// `direction` (eye minus look) turns the camera to it first, otherwise the current direction is kept.
+export function fitView(viewer: Viewer, duration = 0, direction?: number[]) {
   const { camera, cameraFlight, scene } = viewer
 
   if (!scene.visibleObjectIds.length) return
 
   const start = { eye: camera.eye.slice(), look: camera.look.slice(), up: camera.up.slice(), orthoScale: camera.ortho.scale }
+
+  if (direction) {
+    camera.eye = math.addVec3(camera.look, direction, [])
+    camera.up = [0, 1, 0]
+  }
 
   cameraFlight.jumpTo({ aabb: scene.getAABB(scene.visibleObjectIds) })
 

@@ -3,6 +3,7 @@ import { NavCubePlugin, Viewer } from '@xeokit/xeokit-sdk'
 
 const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
 const navCubeCanvas = useTemplateRef<HTMLCanvasElement>('navCubeCanvas')
+const pivot = useTemplateRef<HTMLImageElement>('pivot')
 
 const route = useRoute()
 const { baseURL } = useRuntimeConfig().app
@@ -13,12 +14,22 @@ onMounted(() => {
   const instance = new Viewer({ canvasElement: canvas.value!, transparent: true })
 
   // Only the direction matters: fitView keeps it and refits the distance to the model
-  instance.camera.eye = [-10, 7, 17]
+  instance.camera.eye = HOME_DIRECTION
 
   Object.assign(instance.scene.highlightMaterial, { fill: true, fillAlpha: 0.1, edges: true, edgeAlpha: 1, edgeColor: [1, 1, 0] })
 
+  Object.assign(instance.scene.xrayMaterial, {
+    fillAlpha: 0.4,
+    fillColor: [0.970588207244873, 0.7965892553329468, 0.6660899519920349],
+    edges: true,
+    edgeAlpha: 1,
+    edgeColor: [0.529411792755127, 0.4577854573726654, 0.4100345969200134],
+    edgeWidth: 1,
+  })
+
   // With double-click fly-to on, xeokit holds every 'picked' event 250 ms to tell a click from a double click
   instance.cameraControl.doublePickFlyTo = false
+  instance.cameraControl.pivotElement = pivot.value!
 
   new NavCubePlugin(instance, {
     canvasElement: navCubeCanvas.value!,
@@ -57,5 +68,15 @@ onBeforeUnmount(() => {
         class="absolute -top-5 -left-5 size-26"
       />
     </div>
+
+    <!-- xeokit positions this in page coordinates and toggles its visibility while orbiting -->
+    <img
+      ref="pivot"
+      :src="`${baseURL}camera-pivot.svg`"
+      alt=""
+      class="pointer-events-none invisible fixed z-40 size-8.75"
+    >
+
+    <ViewerSceneMenu />
   </div>
 </template>

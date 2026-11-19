@@ -9,12 +9,21 @@ const { showObject, hide, clearSelection } = useProperties()
 const open = useOpenPanels()
 const sliceMode = useSliceMode()
 const isOrtho = ref(false)
-const selecting = ref(false)
+const selecting = ref(true)
 
 const ctrl = useKeyModifier('Control')
 const meta = useKeyModifier('Meta')
 
 onKeyStroke('Escape', clearSelection)
+
+// Slicing places a plane with the same click that selects, so the two modes never run together
+watch(sliceMode, (slicing) => {
+  selecting.value = !slicing
+})
+
+watch(selecting, (active) => {
+  if (active) sliceMode.value = false
+})
 
 watch([viewer, selecting], ([instance, active], _, onCleanup) => {
   if (!instance || !active) return

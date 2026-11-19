@@ -1,4 +1,4 @@
-import type { SceneModel, Viewer } from '@xeokit/xeokit-sdk'
+import type { SceneModel, SceneModelEntity, Viewer } from '@xeokit/xeokit-sdk'
 
 export interface IfcMetaObject {
   id: string | number
@@ -93,6 +93,43 @@ export function objectTypes(viewer: Viewer) {
   }
 
   return types
+}
+
+// The entity plus every entity below its metaObject, so an aggregate (a stair with its flights) acts as one
+export function subtreeObjectIds(viewer: Viewer, entity: SceneModelEntity) {
+  const metaObjects = modelMetadata(viewer, String(entity.model.id))?.metaObjects ?? []
+  const entityIds = new Map(Object.values(entity.model.objects).map(object => [object.originalSystemId, object.id]))
+  const childrenOf = new Map<string, string[]>()
+
+  for (const metaObject of metaObjects) {
+    if (metaObject.parent == null) continue
+
+    const parent = String(metaObject.parent)
+
+    if (!childrenOf.has(parent)) childrenOf.set(parent, [])
+
+    childrenOf.get(parent)!.push(String(metaObject.id))
+  }
+
+  const ids = new Set([entity.id])
+  const seen = new Set<string>()
+  const stack = [entity.originalSystemId]
+
+  while (stack.length) {
+    const sourceId = stack.pop()!
+
+    if (seen.has(sourceId)) continue
+
+    seen.add(sourceId)
+
+    const id = entityIds.get(sourceId)
+
+    if (id) ids.add(id)
+
+    stack.push(...childrenOf.get(sourceId) ?? [])
+  }
+
+  return [...ids]
 }
 
 function stringifyValue(value: unknown) {
