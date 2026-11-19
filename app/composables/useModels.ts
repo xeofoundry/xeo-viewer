@@ -18,6 +18,19 @@ watch(useViewer(), () => {
 
 const stem = (name: string) => name.replace(/\.[^.]*$/, '').toLowerCase()
 
+function fileName(url: string) {
+  const name = new URL(url, location.href).pathname.split('/').pop()
+
+  if (!name) return url
+
+  try {
+    return decodeURIComponent(name)
+  }
+  catch {
+    return name
+  }
+}
+
 async function fetchOk(url: string) {
   const response = await fetch(url)
 
@@ -89,7 +102,7 @@ export function useModels() {
   }
 
   function loadUrl(xktUrl: string, jsonUrl?: string) {
-    load(xktUrl, () => Promise.all([
+    load(fileName(xktUrl), () => Promise.all([
       fetchOk(xktUrl).then(response => response.arrayBuffer()),
       jsonUrl && fetchOk(jsonUrl).then(response => response.json()),
     ]))
