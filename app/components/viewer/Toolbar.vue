@@ -7,26 +7,27 @@ const viewer = useViewer()
 const { showObject, hide, clearSelection } = useProperties()
 
 const open = useOpenPanels()
-const sliceMode = useSliceMode()
+const tool = useToolMode()
+const { setMeasuring } = useMeasurements()
 const isOrtho = ref(false)
-const selecting = ref(true)
+
+const tools = [
+  { id: 'select', label: 'Select objects', icon: 'i-lucide-mouse-pointer' },
+  { id: 'hide', label: 'Hide objects', icon: 'i-lucide-eraser' },
+  { id: 'measure', label: 'Measure distance', icon: 'i-lucide-ruler' },
+  { id: 'slice', label: 'Slice objects', icon: 'i-lucide-scissors' },
+] satisfies { id: ToolMode, label: string, icon: string }[]
 
 const ctrl = useKeyModifier('Control')
 const meta = useKeyModifier('Meta')
 
-onKeyStroke('Escape', clearSelection)
-
-// Slicing places a plane with the same click that selects, so the two modes never run together
-watch(sliceMode, (slicing) => {
-  selecting.value = !slicing
+onKeyStroke('Escape', () => {
+  clearSelection()
+  tool.value = 'select'
 })
 
-watch(selecting, (active) => {
-  if (active) sliceMode.value = false
-})
-
-watch([viewer, selecting], ([instance, active], _, onCleanup) => {
-  if (!instance || !active) return
+watch([viewer, tool], ([instance, mode], _, onCleanup) => {
+  if (!instance || (mode !== 'select' && mode !== 'hide')) return
 
   const { cameraControl } = instance
   let hovered: Entity | undefined
@@ -42,6 +43,11 @@ watch([viewer, selecting], ([instance, active], _, onCleanup) => {
     cameraControl.on('picked', ({ entity }) => {
       if (!entity) return
 
+      if (mode === 'hide') {
+        entity.visible = false
+        return
+      }
+
       const wasSelected = entity.selected
 
       if (!ctrl.value && !meta.value) clearSelection()
@@ -51,7 +57,9 @@ watch([viewer, selecting], ([instance, active], _, onCleanup) => {
       if (entity.selected) showObject(String(entity.id))
       else hide(String(entity.id))
     }),
-    cameraControl.on('pickedNothing', clearSelection),
+    cameraControl.on('pickedNothing', () => {
+      if (mode === 'select') clearSelection()
+    }),
   ]
 
   onCleanup(() => {
@@ -59,6 +67,13 @@ watch([viewer, selecting], ([instance, active], _, onCleanup) => {
 
     if (hovered && !hovered.destroyed) hovered.highlighted = false
   })
+}, { immediate: true })
+
+watch([viewer, tool], ([instance, mode], _, onCleanup) => {
+  if (!instance || mode !== 'measure') return
+
+  setMeasuring(true)
+  onCleanup(() => setMeasuring(false))
 }, { immediate: true })
 
 function toggleProjection() {
@@ -113,19 +128,6 @@ function viewFit() {
     />
 
     <div class="flex items-center gap-1">
-      <UTooltip text="Select objects">
-        <UButton
-          icon="i-lucide-mouse-pointer-click"
-          size="xl"
-          square
-          :color="selecting ? 'primary' : 'neutral'"
-          :variant="selecting ? 'solid' : 'ghost'"
-          aria-label="Select objects"
-          :aria-pressed="selecting"
-          @click="selecting = !selecting"
-        />
-      </UTooltip>
-
       <UTooltip :text="isOrtho ? 'Orthographic' : 'Perspective'">
         <UButton
           :icon="isOrtho ? 'i-lucide-square' : 'i-lucide-box'"
@@ -149,17 +151,28 @@ function viewFit() {
           @click="viewFit"
         />
       </UTooltip>
+    </div>
 
-      <UTooltip text="Slice objects">
+    <USeparator
+      orientation="vertical"
+      class="h-7"
+    />
+
+    <div class="flex items-center gap-1 rounded-lg bg-white/10">
+      <UTooltip
+        v-for="item in tools"
+        :key="item.id"
+        :text="item.label"
+      >
         <UButton
-          icon="i-lucide-scissors"
+          :icon="item.icon"
           size="xl"
           square
-          :color="sliceMode ? 'primary' : 'neutral'"
-          :variant="sliceMode ? 'solid' : 'ghost'"
-          aria-label="Slice objects"
-          :aria-pressed="sliceMode"
-          @click="sliceMode = !sliceMode"
+          :color="tool === item.id ? 'primary' : 'neutral'"
+          :variant="tool === item.id ? 'solid' : 'ghost'"
+          :aria-label="item.label"
+          :aria-pressed="tool === item.id"
+          @click="tool = tool === item.id ? null : item.id"
         />
       </UTooltip>
     </div>

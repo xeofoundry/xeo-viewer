@@ -4,6 +4,8 @@ import { math, type SceneModelEntity, type Viewer } from '@xeokit/xeokit-sdk'
 
 const viewer = useViewer()
 const properties = useProperties()
+const tool = useToolMode()
+const measurements = useMeasurements()
 
 const open = ref(false)
 const items = shallowRef<DropdownMenuItem[][]>([])
@@ -45,6 +47,84 @@ function sceneItems(instance: Viewer) {
   } satisfies Record<string, DropdownMenuItem>
 }
 
+function measurementsMenu(): DropdownMenuItem {
+  const tools = measurements.measureTools()!
+  const all = Object.values(tools.plugin.measurements) as Measurement[]
+
+  const setAll = (update: (measurement: Measurement) => void) => () => all.forEach(update)
+
+  return {
+    label: 'Measurements',
+    children: [
+      { label: 'Delete All', disabled: !all.length, onSelect: () => tools.plugin.clear() },
+      {
+        label: tools.plugin.getAxisVisible() ? 'Hide Axis Wires' : 'Show Axis Wires',
+        disabled: !all.length,
+        onSelect: () => tools.plugin.setAxisVisible(!tools.plugin.getAxisVisible()),
+      },
+      { label: 'Show All', disabled: !all.length, onSelect: setAll(measurement => measurement.visible = true) },
+      { label: 'Hide All', disabled: !all.length, onSelect: setAll(measurement => measurement.visible = false) },
+      { label: 'Show All Labels', disabled: !all.length, onSelect: setAll(measurement => measurement.labelsVisible = true) },
+      { label: 'Hide All Labels', disabled: !all.length, onSelect: setAll(measurement => measurement.labelsVisible = false) },
+      {
+        label: tools.mouseControl.snapping ? 'Disable Snapping' : 'Enable Snapping',
+        onSelect: () => {
+          tools.mouseControl.snapping = !tools.mouseControl.snapping
+          tools.touchControl.snapping = tools.mouseControl.snapping
+        },
+      },
+    ],
+  }
+}
+
+function measuringItems(): DropdownMenuItem[] {
+  const { mouseControl } = measurements.measureTools()!
+
+  return [
+    { label: 'End Editing', disabled: !measurements.editing.value, onSelect: measurements.endEdit },
+    { label: 'Cancel Measurement', disabled: !mouseControl.currentMeasurement, onSelect: () => mouseControl.reset() },
+  ]
+}
+
+function measurementItems(target: Measurement): DropdownMenuItem[][] {
+  const { plugin, mouseControl } = measurements.measureTools()!
+
+  const labelToggle = (name: string, key: 'xLabelEnabled' | 'yLabelEnabled' | 'zLabelEnabled' | 'lengthLabelEnabled') => ({
+    label: `${target[key] && target.labelsVisible ? 'Disable' : 'Enable'} ${name} Label`,
+    onSelect: () => {
+      target[key] = !target[key]
+    },
+  })
+
+  return [
+    [
+      { label: 'Delete', onSelect: () => target.destroy() },
+      {
+        label: target.axisVisible ? 'Hide Axis' : 'Show Axis',
+        onSelect: () => {
+          target.axisVisible = !target.axisVisible
+        },
+      },
+      labelToggle('X', 'xLabelEnabled'),
+      labelToggle('Y', 'yLabelEnabled'),
+      labelToggle('Z', 'zLabelEnabled'),
+      labelToggle('Length', 'lengthLabelEnabled'),
+      {
+        label: target.labelsVisible ? 'Hide All Labels' : 'Show All Labels',
+        onSelect: () => {
+          target.labelsVisible = !target.labelsVisible
+        },
+      },
+      { label: 'Edit', disabled: measurements.editing.value, onSelect: () => measurements.startEdit(target) },
+      { label: 'End Editing', disabled: !measurements.editing.value, onSelect: measurements.endEdit },
+    ],
+    [
+      { label: 'Delete All', disabled: !Object.keys(plugin.measurements).length, onSelect: () => plugin.clear() },
+      { label: 'Cancel Measurement', onSelect: () => mouseControl.reset() },
+    ],
+  ]
+}
+
 function objectItems(instance: Viewer, target: SceneModelEntity): DropdownMenuItem[][] {
   const { scene, cameraFlight } = instance
   const shared = sceneItems(instance)
@@ -62,6 +142,7 @@ function objectItems(instance: Viewer, target: SceneModelEntity): DropdownMenuIt
   }
 
   return [
+    ...tool.value === 'measure' ? [measuringItems()] : [],
     [{ label: 'Inspect Properties', onSelect: select }],
     [
       {
@@ -138,6 +219,7 @@ function objectItems(instance: Viewer, target: SceneModelEntity): DropdownMenuIt
         ],
       },
     ],
+    [measurementsMenu()],
   ]
 }
 
@@ -169,32 +251,62 @@ function canvasItems(instance: Viewer): DropdownMenuItem[][] {
           fitView(instance, 0.5, HOME_DIRECTION)
         },
       },
+      measurementsMenu(),
     ],
   ]
 }
 
-// xeokit fires 'rightClick' only when the button comes up without dragging, so right-drag panning never opens the menu
+function release() {
+  if (entity.value) entity.value.highlighted = false
+  measurements.pinned.value?.setHighlighted(false)
+
+  entity.value = undefined
+  measurements.pinned.value = undefined
+}
+
+function show(event: MouseEvent, menu: DropdownMenuItem[][]) {
+  items.value = menu
+  point.value = { x: event.clientX, y: event.clientY }
+  open.value = true
+}
+
 watch(viewer, (instance, _, onCleanup) => {
   if (!instance) return
 
-  const subscription = instance.cameraControl.on('rightClick', ({ event, canvasPos }) => {
+  const { plugin } = measurements.measureTools()!
+
+  // xeokit fires 'rightClick' only when the button comes up without dragging, so right-drag panning never opens the menu
+  const rightClick = instance.cameraControl.on('rightClick', ({ event, canvasPos }) => {
+    if (measurements.hovered.value) return
+
     const hit = instance.scene.pick({ canvasPos })
     const target = hit?.entity?.isObject ? hit.entity as SceneModelEntity : undefined
 
-    if (entity.value) entity.value.highlighted = false
+    release()
+
     if (target) target.highlighted = true
 
     entity.value = target
-    items.value = target ? objectItems(instance, target) : canvasItems(instance)
-    point.value = { x: event.clientX, y: event.clientY }
-    open.value = true
+    show(event, target ? objectItems(instance, target) : canvasItems(instance))
   })
 
-  onCleanup(() => instance.cameraControl.off(subscription))
+  const measurementMenu = plugin.on('contextMenu', ({ event, measurement }) => {
+    event.preventDefault()
+    release()
+
+    measurement.setHighlighted(true)
+    measurements.pinned.value = measurement as Measurement
+    show(event, measurementItems(measurement as Measurement))
+  })
+
+  onCleanup(() => {
+    instance.cameraControl.off(rightClick)
+    plugin.off(measurementMenu)
+  })
 }, { immediate: true })
 
 watch(open, (isOpen) => {
-  if (!isOpen && entity.value) entity.value.highlighted = false
+  if (!isOpen) release()
 })
 </script>
 

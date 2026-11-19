@@ -15,9 +15,46 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
+  /* Full-screen viewer: the lens and measurement labels near the edges must not make the page scroll */
+  html,
+  body {
+    overflow: hidden;
+  }
 }
 
 /* xeokit's built-in loading spinner has no off switch; the app shows its own indicator instead */
 .sk-fading-circle {
   display: none;
+}
+
+/* Measurement parts default to z-indexes in the millions, which would draw them over the panels */
+.viewer-ruler-wire {
+  z-index: 31 !important;
+}
+
+.viewer-ruler-wire-clickable,
+.viewer-ruler-dot {
+  z-index: 32 !important;
+}
+
+.viewer-ruler-dot-clickable {
+  z-index: 33 !important;
+}
+
+.viewer-ruler-label {
+  z-index: 34 !important;
+  user-select: none !important;
+}
+
+.viewer-ruler-wire-highlighted,
+.viewer-ruler-label-highlighted,
+.viewer-ruler-dot-highlighted {
+  border: 2px solid white !important;
+}
+
+/* xeokit adds its margins (8px left, 80px top or flipped to the bottom), this puts the 300px lens just left of center */
+#xeokit-pointer-lens {
+  top: 0 !important;
+  left: max(0px, calc(50% - 408px)) !important;
 }
