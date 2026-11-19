@@ -10,6 +10,32 @@ const { baseURL } = useRuntimeConfig().app
 const viewer = useViewer()
 const { loadUrl } = useModels()
 
+interface NavCubeInternals {
+  _repaint?: () => void
+  _cubeTextureCanvas?: { _textureCanvas?: HTMLCanvasElement, setAreaHighlighted?: (areaId: number, highlighted: boolean) => void }
+}
+
+// NavCubePlugin hardcodes '60px sans-serif' for its labels, so the font setter of its own texture context adds bold.
+// It relies on plugin internals and quietly does nothing if an SDK update renames them.
+function boldNavCubeLabels(navCube: NavCubePlugin) {
+  const { _repaint, _cubeTextureCanvas: texture } = navCube as unknown as NavCubeInternals
+  const context = texture?._textureCanvas?.getContext('2d')
+  const font = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'font')
+
+  if (!context || !font?.set || !texture?.setAreaHighlighted || !_repaint) return
+
+  Object.defineProperty(context, 'font', {
+    configurable: true,
+    get: font.get,
+    set(value: string) {
+      font.set!.call(this, `bold ${value}`)
+    },
+  })
+
+  texture.setAreaHighlighted(0, false)
+  _repaint.call(navCube)
+}
+
 onMounted(() => {
   const instance = new Viewer({ canvasElement: canvas.value!, transparent: true })
 
@@ -31,11 +57,11 @@ onMounted(() => {
   instance.cameraControl.doublePickFlyTo = false
   instance.cameraControl.pivotElement = pivot.value!
 
-  new NavCubePlugin(instance, {
+  boldNavCubeLabels(new NavCubePlugin(instance, {
     canvasElement: navCubeCanvas.value!,
     color: '#ffffff',
     shadowVisible: false,
-  })
+  }))
 
   setFastNavEnabled(instance, true)
 
