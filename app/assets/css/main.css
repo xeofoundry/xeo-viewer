@@ -16,6 +16,11 @@
     cursor: pointer;
   }
 
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.2) transparent;
+  }
+
   /* Full-screen viewer: the lens and measurement labels near the edges must not make the page scroll */
   html,
   body {
