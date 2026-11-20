@@ -39,7 +39,7 @@ const style = computed<CSSProperties>(() => {
   <section
     ref="panel"
     :style="style"
-    class="pointer-events-auto relative flex flex-col overflow-hidden rounded-[21px] bg-surface/70 text-white backdrop-blur-md"
+    class="pointer-events-auto relative flex flex-col overflow-hidden rounded-[21px] bg-surface/70 text-highlighted backdrop-blur-md"
     :class="floating ? 'shadow-xl' : ['shadow-sm', desktop ? 'max-h-max min-h-0 w-full flex-1' : 'w-full']"
     @pointerdown="floating && transform.bringToFront()"
   >
@@ -75,7 +75,7 @@ const style = computed<CSSProperties>(() => {
 
     <div
       v-if="floating"
-      class="absolute right-0 bottom-0 flex size-5 cursor-nwse-resize touch-none items-end justify-end p-1 text-slate-400/70 hover:text-white"
+      class="absolute right-0 bottom-0 flex size-5 cursor-nwse-resize touch-none items-end justify-end p-1 text-slate-400/70 hover:text-highlighted"
       title="Drag to resize · double-click to reset"
       @pointerdown="transform.startResize"
       @dblclick="transform.resetGeometry"

@@ -2,7 +2,17 @@
 @import "@nuxt/ui";
 
 @theme {
+  --color-surface: #fbfaff;
+  --color-tint: #000;
+  --color-scene-top: #eeedf2;
+  --color-scene-bottom: #c9c7d1;
+}
+
+.dark {
   --color-surface: #0a0314;
+  --color-tint: #fff;
+  --color-scene-top: #4b4a56;
+  --color-scene-bottom: #28252e;
 }
 
 :root {
@@ -18,7 +28,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgb(255 255 255 / 0.2) transparent;
+    scrollbar-color: color-mix(in oklab, var(--color-tint) 20%, transparent) transparent;
   }
 
   /* Full-screen viewer: the lens and measurement labels near the edges must not make the page scroll */
@@ -49,11 +59,11 @@
 }
 
 .loading-spinner .track {
-  stroke: rgb(255 255 255 / 0.15);
+  stroke: color-mix(in oklab, currentColor 15%, transparent);
 }
 
 .loading-spinner .arc {
-  stroke: white;
+  stroke: currentColor;
   stroke-dasharray: 32 126;
 }
 

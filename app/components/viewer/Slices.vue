@@ -173,7 +173,7 @@ function peek(plane?: SectionPlane) {
     v-if="sliceMode"
     class="flex flex-col-reverse items-center gap-2 md:flex-col"
   >
-    <div class="pointer-events-auto flex items-center gap-1 rounded-[21px] bg-surface/70 p-3 text-white shadow-sm backdrop-blur-md">
+    <div class="pointer-events-auto flex items-center gap-1 rounded-[21px] bg-surface/70 p-3 text-highlighted shadow-sm backdrop-blur-md">
       <UTooltip text="Add new slice">
         <UButton
           icon="i-lucide-plus"
@@ -238,7 +238,7 @@ function peek(plane?: SectionPlane) {
             <div
               v-for="(plane, index) in planes"
               :key="plane.id"
-              class="flex items-center justify-between gap-2 rounded-md py-1 pl-2 hover:bg-white/10"
+              class="flex items-center justify-between gap-2 rounded-md py-1 pl-2 hover:bg-tint/10"
               @mouseenter="peek(plane)"
               @mouseleave="peek()"
             >
@@ -290,7 +290,7 @@ function peek(plane?: SectionPlane) {
 
     <div
       v-if="adding && !planes.length"
-      class="pointer-events-auto flex items-center gap-2 rounded-md bg-surface/70 px-3 py-1 text-sm text-white backdrop-blur-md"
+      class="pointer-events-auto flex items-center gap-2 rounded-md bg-surface/70 px-3 py-1 text-sm text-highlighted backdrop-blur-md"
     >
       <UIcon
         name="i-lucide-info"

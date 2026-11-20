@@ -17,6 +17,7 @@ const badges = computed<Partial<Record<string, number>>>(() => ({ filters: filte
 
 const { active: walking, setWalkMode } = useWalkMode()
 const isOrtho = ref(false)
+const dark = useDarkMode()
 
 const tools = [
   { id: 'select', label: 'Select objects', icon: 'i-lucide-mouse-pointer' },
@@ -108,12 +109,12 @@ function viewFit() {
 </script>
 
 <template>
-  <header class="pointer-events-auto flex items-center gap-4 self-start rounded-[21px] bg-surface/70 p-3 text-white shadow-sm backdrop-blur-md">
+  <header class="pointer-events-auto flex items-center gap-4 self-start rounded-[21px] bg-surface/70 p-3 text-highlighted shadow-sm backdrop-blur-md">
     <img
       :src="`${baseURL}xeokit-logo.svg`"
       alt="xeokit"
       draggable="false"
-      class="h-8"
+      class="h-8 invert dark:invert-0"
     >
 
     <div class="ml-3 flex items-center gap-1">
@@ -194,7 +195,7 @@ function viewFit() {
       class="h-7"
     />
 
-    <div class="flex items-center gap-1 rounded-lg bg-white/10">
+    <div class="flex items-center gap-1 rounded-lg bg-tint/10">
       <UTooltip
         v-for="item in tools"
         :key="item.id"
@@ -212,5 +213,22 @@ function viewFit() {
         />
       </UTooltip>
     </div>
+
+    <USeparator
+      orientation="vertical"
+      class="h-7"
+    />
+
+    <UTooltip :text="dark ? 'Light mode' : 'Dark mode'">
+      <UButton
+        :icon="dark ? 'i-lucide-sun' : 'i-lucide-moon'"
+        size="xl"
+        square
+        color="neutral"
+        variant="ghost"
+        :aria-label="dark ? 'Switch to light mode' : 'Switch to dark mode'"
+        @click="dark = !dark"
+      />
+    </UTooltip>
   </header>
 </template>

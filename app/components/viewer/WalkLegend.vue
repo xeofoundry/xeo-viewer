@@ -40,7 +40,7 @@ const legend = computed(() => [
 </script>
 
 <template>
-  <div class="hidden w-fit shrink-0 grid-cols-[auto_auto] items-center gap-x-3 gap-y-0.5 self-end rounded-[21px] bg-surface/70 px-5 py-4 text-xs text-white backdrop-blur-md md:grid">
+  <div class="hidden w-fit shrink-0 grid-cols-[auto_auto] items-center gap-x-3 gap-y-0.5 self-end rounded-[21px] bg-surface/70 px-5 py-4 text-xs text-highlighted backdrop-blur-md md:grid">
     <template
       v-for="row in legend"
       :key="row.label"
@@ -54,8 +54,8 @@ const legend = computed(() => [
           <kbd
             v-for="key in group"
             :key="key"
-            class="inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 pt-px font-mono text-[11px] leading-none text-white"
-            :class="activeKeys.has(key) ? 'bg-primary' : 'bg-surface'"
+            class="inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 pt-px font-mono text-[11px] leading-none"
+            :class="activeKeys.has(key) ? 'bg-primary text-white' : 'bg-tint/10 text-highlighted dark:bg-surface'"
           >
             {{ key }}
           </kbd>

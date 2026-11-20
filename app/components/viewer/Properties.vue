@@ -59,7 +59,7 @@ function visiblePropertySets(object: PropertyObject) {
       >
         <button
           type="button"
-          class="mb-1 flex w-full items-center gap-2 border-b border-white/15 pb-1 text-left"
+          class="mb-1 flex w-full items-center gap-2 border-b border-tint/15 pb-1 text-left"
           @click="toggle(key)"
         >
           <UIcon
@@ -72,7 +72,7 @@ function visiblePropertySets(object: PropertyObject) {
 
           <span
             v-if="object.type"
-            class="shrink-0 text-xs text-zinc-400"
+            class="shrink-0 text-xs text-muted"
           >
             {{ object.type }}
           </span>
@@ -81,7 +81,7 @@ function visiblePropertySets(object: PropertyObject) {
         <template v-if="isExpanded(key)">
           <div
             v-if="!object.propertySets.length && !Object.keys(object.attributes).length"
-            class="py-3 text-center text-sm text-zinc-400"
+            class="py-3 text-center text-sm text-muted"
           >
             No properties for the selected element.
           </div>
@@ -95,7 +95,7 @@ function visiblePropertySets(object: PropertyObject) {
                 <tr>
                   <th
                     colspan="2"
-                    class="bg-white/10 px-2 py-1 text-left text-xs font-semibold tracking-wide uppercase"
+                    class="bg-tint/10 px-2 py-1 text-left text-xs font-semibold tracking-wide uppercase"
                   >
                     Attributes
                   </th>
@@ -104,9 +104,9 @@ function visiblePropertySets(object: PropertyObject) {
                 <tr
                   v-for="[name, value] in visibleAttributes(object)"
                   :key="name"
-                  class="border-b border-white/10 hover:bg-white/5"
+                  class="border-b border-tint/10 hover:bg-tint/5"
                 >
-                  <td class="w-2/5 px-2 py-1 align-top wrap-break-word text-zinc-400">
+                  <td class="w-2/5 px-2 py-1 align-top wrap-break-word text-muted">
                     {{ name }}
                   </td>
 
@@ -123,7 +123,7 @@ function visiblePropertySets(object: PropertyObject) {
                 <tr>
                   <th
                     colspan="2"
-                    class="bg-white/10 px-2 py-1 text-left text-xs font-semibold tracking-wide wrap-break-word uppercase"
+                    class="bg-tint/10 px-2 py-1 text-left text-xs font-semibold tracking-wide wrap-break-word uppercase"
                   >
                     {{ set.name }}
                   </th>
@@ -132,7 +132,7 @@ function visiblePropertySets(object: PropertyObject) {
                 <tr v-if="!set.properties.length">
                   <td
                     colspan="2"
-                    class="px-2 py-1 text-zinc-400 italic"
+                    class="px-2 py-1 text-muted italic"
                   >
                     No properties in this set.
                   </td>
@@ -141,9 +141,9 @@ function visiblePropertySets(object: PropertyObject) {
                 <tr
                   v-for="(property, propertyIndex) in set.properties"
                   :key="propertyIndex"
-                  class="border-b border-white/10 hover:bg-white/5"
+                  class="border-b border-tint/10 hover:bg-tint/5"
                 >
-                  <td class="w-2/5 px-2 py-1 align-top wrap-break-word text-zinc-300">
+                  <td class="w-2/5 px-2 py-1 align-top wrap-break-word text-toned">
                     {{ property.name }}
                   </td>
 
@@ -159,7 +159,7 @@ function visiblePropertySets(object: PropertyObject) {
 
       <div
         v-if="!entries.length"
-        class="mx-auto my-4 flex max-w-62 flex-col items-center gap-2 text-center text-zinc-400"
+        class="mx-auto my-4 flex max-w-62 flex-col items-center gap-2 text-center text-muted"
       >
         <UIcon
           name="i-lucide-file"

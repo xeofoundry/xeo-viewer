@@ -58,7 +58,7 @@ function setVisible(id: string, visible: boolean) {
         <li
           v-for="model in models"
           :key="model.id"
-          class="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-white/10"
+          class="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-tint/10"
         >
           <span
             class="flex-1 truncate"

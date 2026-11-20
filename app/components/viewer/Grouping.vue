@@ -31,7 +31,7 @@ const swatch = (color: RgbColor) => `rgb(${color.map(channel => Math.round(chann
 <template>
   <div
     v-if="!propertyIndex"
-    class="mx-auto my-4 flex max-w-62 flex-col items-center gap-2 text-center text-zinc-400"
+    class="mx-auto my-4 flex max-w-62 flex-col items-center gap-2 text-center text-muted"
   >
     <UIcon
       name="i-lucide-layout-panel-top"
@@ -96,9 +96,9 @@ const swatch = (color: RgbColor) => `rgb(${color.map(channel => Math.round(chann
 
     <div
       v-if="groups.length"
-      class="flex flex-col gap-1 border-t border-white/15 pt-3 text-sm"
+      class="flex flex-col gap-1 border-t border-tint/15 pt-3 text-sm"
     >
-      <div class="flex items-center justify-between text-xs text-zinc-400">
+      <div class="flex items-center justify-between text-xs text-muted">
         <span class="font-semibold tracking-wide uppercase">Legend</span>
 
         <span>{{ groups.length }} groups</span>
@@ -122,7 +122,7 @@ const swatch = (color: RgbColor) => `rgb(${color.map(channel => Math.round(chann
           {{ node.label }}
         </span>
 
-        <span class="text-xs text-zinc-400 tabular-nums">{{ node.ids.length }}</span>
+        <span class="text-xs text-muted tabular-nums">{{ node.ids.length }}</span>
       </div>
     </div>
   </div>

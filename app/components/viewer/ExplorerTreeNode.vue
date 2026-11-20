@@ -130,7 +130,7 @@ function onContextMenu(event: MouseEvent) {
   <div>
     <div
       ref="row"
-      class="flex cursor-pointer items-center gap-1 rounded py-0.5 pr-1 text-nowrap hover:bg-white/10"
+      class="flex cursor-pointer items-center gap-1 rounded py-0.5 pr-1 text-nowrap hover:bg-tint/10"
       :style="{ paddingLeft: `${depth * 16}px` }"
       :title="node.title"
       @click="onRowClick"
@@ -168,7 +168,7 @@ function onContextMenu(event: MouseEvent) {
       />
 
       <span
-        :class="{ 'text-zinc-400': !hasObjects && !hasChildren, 'font-bold text-violet-400': selected }"
+        :class="{ 'text-muted': !hasObjects && !hasChildren, 'font-bold text-primary dark:text-[color-mix(in_oklab,var(--ui-primary)_60%,white)]': selected }"
         @click.stop="select"
         @dblclick.prevent.stop="flyTo"
       >

@@ -1,19 +1,19 @@
-// Nuxt UI's opaque zinc fills, rings and hovers clash with the translucent purple-tinted panels, white tints blend in
+// Nuxt UI's opaque zinc fills, rings and hovers clash with the translucent purple-tinted panels, tint overlays blend in
 const field = {
-  variants: { variant: { outline: 'bg-white/5 ring-white/15 hover:bg-white/10 disabled:bg-white/5' } },
+  variants: { variant: { outline: 'bg-tint/5 ring-tint/15 hover:bg-tint/10 disabled:bg-tint/5' } },
 }
 
 // Floating content is portaled to the body without a z-index, so measurement labels drew over it
 const menu = {
-  content: 'z-100 bg-surface ring-white/15',
-  separator: 'bg-white/15',
+  content: 'z-100 bg-surface ring-tint/15',
+  separator: 'bg-tint/15',
 }
 
 const menuHighlight = {
-  active: { false: { item: 'data-highlighted:before:bg-white/10 data-[state=open]:before:bg-white/10' } },
+  active: { false: { item: 'data-highlighted:before:bg-tint/10 data-[state=open]:before:bg-tint/10' } },
 }
 
-const selectItem = 'data-highlighted:not-data-disabled:before:bg-white/10'
+const selectItem = 'data-highlighted:not-data-disabled:before:bg-tint/10'
 
 export default defineAppConfig({
   ui: {
@@ -25,7 +25,7 @@ export default defineAppConfig({
       compoundVariants: [
         // Dark mode puts near-black text on primary, which reads poorly on violet-600
         { color: 'primary', variant: 'solid', class: 'text-white' },
-        { color: 'neutral', variant: 'ghost', class: 'hover:bg-white/10 active:bg-white/15' },
+        { color: 'neutral', variant: 'ghost', class: 'hover:bg-tint/10 active:bg-tint/15' },
       ],
     },
     checkbox: {
@@ -43,7 +43,7 @@ export default defineAppConfig({
       slots: { content: 'z-100' },
     },
     tabs: {
-      compoundVariants: [{ color: 'primary', variant: 'pill', class: { list: 'bg-white/5', trigger: 'data-[state=active]:text-white' } }],
+      compoundVariants: [{ color: 'primary', variant: 'pill', class: { list: 'bg-tint/5', trigger: 'data-[state=active]:text-white' } }],
     },
   },
 })

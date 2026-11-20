@@ -344,7 +344,7 @@ watch(viewer, (instance, _, onCleanup) => {
 
         <div
           v-if="!shownTrees.length"
-          class="px-2 py-4 text-center text-zinc-400"
+          class="px-2 py-4 text-center text-muted"
           @contextmenu.prevent
         >
           {{ needle ? 'No matching elements' : 'No models with metadata loaded' }}

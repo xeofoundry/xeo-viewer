@@ -64,7 +64,7 @@ const columns = {
         size="xs"
         color="neutral"
         variant="ghost"
-        class="pointer-events-auto bg-surface text-white hover:bg-zinc-600"
+        class="pointer-events-auto bg-surface text-highlighted hover:bg-zinc-200 dark:hover:bg-zinc-600"
         @click="resetPanelLayout"
       />
     </footer>

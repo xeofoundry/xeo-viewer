@@ -82,7 +82,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="relative h-dvh bg-linear-to-b from-[#4b4a56] to-[#28252e]">
+  <div class="relative h-dvh bg-linear-to-b from-scene-top to-scene-bottom">
     <canvas
       ref="canvas"
       class="block size-full"

@@ -33,7 +33,7 @@ watch(properties, (available) => {
 <template>
   <div
     v-if="!properties"
-    class="mx-auto my-4 flex max-w-62 flex-col items-center gap-2 text-center text-zinc-400"
+    class="mx-auto my-4 flex max-w-62 flex-col items-center gap-2 text-center text-muted"
   >
     <UIcon
       name="i-lucide-filter"
@@ -141,7 +141,7 @@ watch(properties, (available) => {
 
       <span
         v-if="result"
-        class="text-xs text-zinc-400"
+        class="text-xs text-muted"
       >
         Matched {{ result.matched }} of {{ result.total }}
       </span>
