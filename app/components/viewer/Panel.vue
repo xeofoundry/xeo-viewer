@@ -51,7 +51,7 @@ const style = computed<CSSProperties>(() => {
       <div class="flex items-center gap-2">
         <UIcon
           :name="icon"
-          class="size-6"
+          class="size-5"
         />
 
         <span>{{ title }}</span>
@@ -59,7 +59,7 @@ const style = computed<CSSProperties>(() => {
 
       <UButton
         icon="i-lucide-x"
-        size="xl"
+        size="lg"
         square
         color="neutral"
         variant="ghost"
