@@ -137,11 +137,16 @@ export function useModels() {
     ]))
   }
 
+  function loadBuffer(xkt: ArrayBuffer, json?: ArrayBuffer) {
+    load('model', async () => [xkt, json && JSON.parse(new TextDecoder().decode(json))])
+  }
+
   return {
     models: loadedModels,
     loading: computed(() => pending.value > 0),
     hasModels: computed(() => models.value.length > 0),
     loadFiles,
     loadUrl,
+    loadBuffer,
   }
 }

@@ -1,6 +1,8 @@
 export type ToolMode = 'select' | 'hide' | 'measure' | 'slice'
 
-export const useToolMode = () => useState<ToolMode | null>('tool-mode', () => 'select')
+const toolMode = ref<ToolMode | null>('select')
+
+export const useToolMode = () => toolMode
 
 export function useSliceMode() {
   const tool = useToolMode()

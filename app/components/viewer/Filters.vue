@@ -109,6 +109,7 @@ watch(properties, (available) => {
             v-model="condition.operator"
             :items="operators(condition.property).map(value => ({ value, label: OPERATOR_LABELS[value] }))"
             aria-label="Operator"
+            :content="{ bodyLock: false }"
           />
 
           <UInputMenu

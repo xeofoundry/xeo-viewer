@@ -2,7 +2,6 @@
 import { onKeyStroke, useKeyModifier } from '@vueuse/core'
 import type { Entity } from '@xeokit/xeokit-sdk'
 
-const { baseURL } = useRuntimeConfig().app
 const viewer = useViewer()
 const { showObject, hide, clearSelection } = useProperties()
 
@@ -124,7 +123,7 @@ function viewFit() {
 <template>
   <header class="pointer-events-auto flex items-center gap-4 self-start rounded-[21px] bg-surface/70 p-3 text-highlighted shadow-sm backdrop-blur-md">
     <img
-      :src="`${baseURL}xeokit-logo.svg`"
+      src="~/assets/xeokit-logo.svg"
       alt="xeokit"
       draggable="false"
       class="h-8 invert dark:invert-0"

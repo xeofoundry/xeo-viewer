@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Resolves the recursive <ViewerExplorerTreeNode> in the web component build, which only auto-imports other files
+defineOptions({ name: 'ViewerExplorerTreeNode' })
+
 const props = defineProps<{
   node: TreeNode
   depth: number

@@ -3,7 +3,10 @@ import { useDropZone, useFileDialog } from '@vueuse/core'
 
 const { loading, hasModels, loadFiles, loadUrl } = useModels()
 
-const { isOverDropZone } = useDropZone(document, {
+const root = useTemplateRef<HTMLElement>('root')
+
+// The parent is the page's app root or the <xeo-viewer> element, so an embedded viewer leaves the rest of the page alone
+const { isOverDropZone } = useDropZone(() => root.value?.parentElement, {
   checkValidity: items => [...items].some(item => item.kind === 'file'),
   onDrop: files => files && loadFiles(files),
 })
@@ -53,6 +56,7 @@ watch(loading, (active) => {
 
 <template>
   <div
+    ref="root"
     class="fixed inset-0 z-55 grid place-items-center p-4"
     :class="hasModels || spinning ? 'pointer-events-none' : 'bg-surface/30 backdrop-blur-xs'"
   >

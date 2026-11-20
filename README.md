@@ -20,11 +20,33 @@ pnpm dev
 
 ## Production
 
-Build the application for production:
+`pnpm build` runs both builds.
+
+### Static site
 
 ```bash
-pnpm build
+pnpm build:static
 ```
+
+Emits plain static files to `.output/public`. Open it with `?model=<xkt url>` (and optionally `&metadata=<json url>`) to load a model on start.
+
+### Web component
+
+```bash
+pnpm build:webcomponent
+```
+
+Emits a single `dist/webcomponent/xeo-viewer.js` with styles, icons and images inlined:
+
+```html
+<script type="module" src="xeo-viewer.js"></script>
+
+<xeo-viewer model="https://example.com/model.xkt" style="height: 600px"></xeo-viewer>
+```
+
+`model` is the XKT URL and `metadata` the optional JSON metadata URL, both read once when the element is added. To load from memory instead, set the `modelBuffer` property to an `ArrayBuffer` with the XKT file, and before it optionally `metadataBuffer` to an `ArrayBuffer` with the JSON metadata as UTF-8 text (`document.querySelector('xeo-viewer').modelBuffer = buffer`). These are JavaScript properties, not HTML attributes, and each new `modelBuffer` loads another model. `primary-color` takes any CSS color for buttons, active tools and selection (default violet) and can change at any time. The boolean `compact` attribute tightens spacing and text so the UI takes less room. The element is 480px high by default and a page holds one viewer.
+
+`pnpm example` builds the web component and opens [example/index.html](example/index.html), which embeds it with the sample model.
 
 ## License
 

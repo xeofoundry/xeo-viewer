@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { NavCubePlugin, Viewer } from '@xeokit/xeokit-sdk'
 
+const props = defineProps<{ model?: string, metadata?: string, modelBuffer?: ArrayBuffer, metadataBuffer?: ArrayBuffer }>()
+
 const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
 const navCubeCanvas = useTemplateRef<HTMLCanvasElement>('navCubeCanvas')
 const pivot = useTemplateRef<HTMLImageElement>('pivot')
 
-const route = useRoute()
-const { baseURL } = useRuntimeConfig().app
 const viewer = useViewer()
-const { loadUrl } = useModels()
+const { loadUrl, loadBuffer } = useModels()
 
 interface NavCubeInternals {
   _repaint?: () => void
@@ -68,11 +68,9 @@ onMounted(() => {
 
   viewer.value = instance
 
-  const { model, metadata } = route.query
+  if (props.model) loadUrl(props.model, props.metadata)
 
-  if (typeof model === 'string') {
-    loadUrl(model === 'dev' ? `${baseURL}models/otc-conference-center.xkt` : model, typeof metadata === 'string' ? metadata : undefined)
-  }
+  watch(() => props.modelBuffer, buffer => buffer && loadBuffer(buffer, props.metadataBuffer), { immediate: true })
 })
 
 onBeforeUnmount(() => {
@@ -82,10 +80,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="relative h-dvh bg-linear-to-b from-scene-top to-scene-bottom">
+  <!-- Fixed fills the page, or the <xeo-viewer> element, whose layout containment confines fixed descendants -->
+  <div class="fixed inset-0 overflow-hidden bg-linear-to-b from-scene-top to-scene-bottom">
+    <!-- xeokit's wheel listeners are passive, so without this the embedding page scrolls while zooming -->
     <canvas
       ref="canvas"
       class="block size-full"
+      @wheel.prevent
     />
 
     <!-- NavCube's fixed internal camera leaves wide margins, so render it 1.6x larger and crop to 64x64 (toolbar height) -->
@@ -97,12 +98,14 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- xeokit positions this in page coordinates and toggles its visibility while orbiting -->
-    <img
-      ref="pivot"
-      :src="`${baseURL}camera-pivot.svg`"
-      alt=""
-      class="pointer-events-none invisible fixed z-40 size-8.75"
-    >
+    <Teleport to="body">
+      <img
+        ref="pivot"
+        src="~/assets/camera-pivot.svg"
+        alt=""
+        class="pointer-events-none invisible absolute z-40 size-8.75"
+      >
+    </Teleport>
 
     <ViewerSceneMenu />
   </div>

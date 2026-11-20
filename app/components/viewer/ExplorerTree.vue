@@ -421,7 +421,10 @@ watch(viewer, (instance, _, onCleanup) => {
       />
     </div>
 
-    <UContextMenu :items="menuItems">
+    <UContextMenu
+      :items="menuItems"
+      :modal="false"
+    >
       <div
         class="min-h-0 flex-1 overflow-y-auto"
         @contextmenu.self.prevent

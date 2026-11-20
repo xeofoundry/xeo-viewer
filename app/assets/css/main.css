@@ -15,7 +15,9 @@
   --color-scene-bottom: #28252e;
 }
 
-:root {
+/* Nuxt UI sets its own on .dark, which the web component puts on its element rather than on <html> */
+:root,
+.dark {
   --ui-primary: var(--ui-color-primary-600);
 }
 
@@ -31,17 +33,11 @@
     scrollbar-color: color-mix(in oklab, var(--color-tint) 20%, transparent) transparent;
   }
 
-  /* Full-screen viewer: the lens and measurement labels near the edges must not make the page scroll */
-  html,
-  body {
-    overflow: hidden;
+  /* Nuxt UI draws focus outlines with utility classes, which only an important rule overrides from this layer */
+  :focus,
+  :focus-visible {
+    outline: none !important;
   }
-}
-
-/* Nuxt UI draws focus outlines with utility classes, which a base-layer rule cannot override */
-:focus,
-:focus-visible {
-  outline: none !important;
 }
 
 /* Copied into app/spa-loading-template.html, which shows the spinner before this stylesheet loads.

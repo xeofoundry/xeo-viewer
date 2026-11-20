@@ -25,7 +25,8 @@ let tools: ReturnType<typeof createTools> | undefined
 let edit: InstanceType<EditControl> | undefined
 
 function createTools(viewer: Viewer) {
-  const plugin = new DistanceMeasurementsPlugin(viewer)
+  const container = viewer.scene.canvas.canvas.parentElement!
+  const plugin = new DistanceMeasurementsPlugin(viewer, { container })
 
   // xeokit places the lens at the bottom using its canvas' default 150px height, not the 300px it is shown at,
   // so this amount keeps the flipped lens 8px above the bottom edge
@@ -36,6 +37,9 @@ function createTools(viewer: Viewer) {
     lensPosMarginLeft: 8,
     lensPosMarginTop: 80,
   })
+
+  // PointerLens always appends to the body, which would put it at the top of the page around an embedded viewer
+  container.append(document.getElementById('xeokit-pointer-lens')!)
 
   plugin.on('mouseOver', ({ measurement }) => {
     hovered.value = measurement as Measurement

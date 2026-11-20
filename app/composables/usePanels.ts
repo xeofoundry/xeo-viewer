@@ -14,4 +14,6 @@ export const panels: PanelConfig[] = [
   { id: 'grouping', title: 'Grouping', icon: 'i-lucide-layout-panel-top', column: 'right', defaultWidth: 340 },
 ]
 
-export const useOpenPanels = () => useState<Partial<Record<string, boolean>>>('open-panels', () => ({}))
+const openPanels = ref<Partial<Record<string, boolean>>>({})
+
+export const useOpenPanels = () => openPanels
