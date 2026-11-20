@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHost } from 'vue'
 
-const props = defineProps<{ model?: string, metadata?: string, modelBuffer?: ArrayBuffer, metadataBuffer?: ArrayBuffer, primaryColor?: string }>()
+const props = defineProps<{ model?: string, metadata?: string, modelBuffer?: ArrayBuffer, metadataBuffer?: ArrayBuffer, primaryColor?: string, allowDropZone?: boolean }>()
 
 const host = useHost()!
 const dark = useDarkMode()
@@ -19,7 +19,7 @@ watchEffect(() => host.style.setProperty('--ui-primary', props.primaryColor ?? '
       :model-buffer
       :metadata-buffer
     />
-    <ViewerModelLoader />
+    <ViewerModelLoader :allow-drop-zone />
     <ViewerOverlay />
   </UApp>
 </template>

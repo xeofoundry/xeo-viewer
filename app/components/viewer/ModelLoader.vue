@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useDropZone, useFileDialog } from '@vueuse/core'
 
+const { allowDropZone = true } = defineProps<{ allowDropZone?: boolean }>()
+
 const { loading, hasModels, loadFiles, loadUrl } = useModels()
 
 const root = useTemplateRef<HTMLElement>('root')
 
 // The parent is the page's app root or the <xeo-viewer> element, so an embedded viewer leaves the rest of the page alone
-const { isOverDropZone } = useDropZone(() => root.value?.parentElement, {
+const { isOverDropZone } = useDropZone(() => allowDropZone ? root.value?.parentElement : undefined, {
   checkValidity: items => [...items].some(item => item.kind === 'file'),
   onDrop: files => files && loadFiles(files),
 })
@@ -107,7 +109,10 @@ watch(loading, (active) => {
           No model loaded
         </h2>
 
-        <p class="text-sm text-muted">
+        <p
+          v-if="allowDropZone"
+          class="text-sm text-muted"
+        >
           Drop .xkt files anywhere in the viewer.
         </p>
       </div>

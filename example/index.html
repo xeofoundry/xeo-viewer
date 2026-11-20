@@ -39,7 +39,7 @@
     It sits in the page like any other block, the text above and below is ordinary page content.
   </p>
 
-  <xeo-viewer primary-color="#950000ff" compact model="../public/models/otc-conference-center.xkt"></xeo-viewer>
+  <xeo-viewer primary-color="#048063ff" compact model="../public/models/otc-conference-center.xkt"></xeo-viewer>
 
   <h2>Usage</h2>
 
@@ -52,17 +52,19 @@
   metadata="https://example.com/model.json"
   primary-color="#18947dff"
   compact
+  allow-drop-zone
   style="height: 600px"
 &gt;&lt;/xeo-viewer&gt;</code></pre>
 
   <ul>
-    <li><code>model</code>: URL of the XKT file. Without it the viewer shows its file picker and accepts dropped files.</li>
+    <li><code>model</code>: URL of the XKT file. Without it the viewer shows its file picker.</li>
     <li><code>metadata</code>: optional URL of the model's JSON metadata.</li>
     <li>Both attributes are read once, when the element is added to the page.</li>
     <li><code>modelBuffer</code>: optional JavaScript property (not an HTML attribute) taking the XKT file as an <code>ArrayBuffer</code>, for example <code>document.querySelector('xeo-viewer').modelBuffer = buffer</code>. Each new buffer is loaded as another model.</li>
     <li><code>metadataBuffer</code>: optional property taking the JSON metadata as an <code>ArrayBuffer</code> of UTF-8 text. Set it before <code>modelBuffer</code>.</li>
     <li><code>primary-color</code>: optional CSS color for buttons, active tools and selection, violet by default. Changing it restyles the viewer right away.</li>
     <li><code>compact</code>: optional boolean attribute that tightens spacing and text so the viewer takes less room. It can be added or removed at any time.</li>
+    <li><code>allow-drop-zone</code>: optional boolean attribute that lets users drop .xkt and .json files onto the viewer to load them. Without it dropping is off. It can be added or removed at any time.</li>
     <li>Size it with CSS like a block element. Without a height it is 480px high.</li>
     <li>A page holds one viewer.</li>
     <li>The model server must allow requests from the page's origin (CORS).</li>
