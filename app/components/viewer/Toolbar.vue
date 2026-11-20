@@ -45,10 +45,21 @@ watch([viewer, tool], ([instance, mode], _, onCleanup) => {
   if (!instance || (mode !== 'select' && mode !== 'hide')) return
 
   const { cameraControl } = instance
+  const canvas = instance.scene.canvas.canvas
   let hovered: Entity | undefined
 
+  // xeokit fires hoverOut only from canvas mousemove, so the last hovered object would stay lit while the pointer is over a panel
+  const clearHover = () => {
+    if (hovered && !hovered.destroyed) hovered.highlighted = false
+  }
+
+  canvas.addEventListener('mouseleave', clearHover)
+
+  // 'hover' rather than 'hoverEnter': xeokit skips hoverEnter when the pointer comes back onto the object it left from
   const subscriptions = [
-    cameraControl.on('hoverEnter', ({ entity }) => {
+    cameraControl.on('hover', ({ entity }) => {
+      if (!entity) return
+
       hovered = entity
       entity.highlighted = true
     }),
@@ -79,8 +90,8 @@ watch([viewer, tool], ([instance, mode], _, onCleanup) => {
 
   onCleanup(() => {
     subscriptions.forEach(subscription => cameraControl.off(subscription))
-
-    if (hovered && !hovered.destroyed) hovered.highlighted = false
+    canvas.removeEventListener('mouseleave', clearHover)
+    clearHover()
   })
 }, { immediate: true })
 
