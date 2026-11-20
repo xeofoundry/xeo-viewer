@@ -39,6 +39,7 @@ export interface ExplorerTreeContext {
   selectedNodes: ShallowRef<Set<TreeNode>>
   searchQuery: Ref<string>
   selectNode: (pick: TreePick, additive: boolean, range?: boolean) => void
+  hoverNode: (node: TreeNode | null) => void
   openContextMenu: (pick: TreePick) => void
 }
 

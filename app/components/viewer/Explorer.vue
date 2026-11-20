@@ -34,7 +34,7 @@ watch(models, scheduleRefresh, { immediate: true })
 watch(viewer, (instance, _, onCleanup) => {
   if (!instance) return
 
-  const subscription = instance.scene.on('objectVisibility', scheduleRefresh)
+  const subscription = onObjectVisibility(instance.scene, scheduleRefresh)
 
   onCleanup(() => instance.scene.off(subscription))
 }, { immediate: true })

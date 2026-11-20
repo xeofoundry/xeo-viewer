@@ -221,10 +221,36 @@ provide(ExplorerTreeContextKey, {
   selectedNodes,
   searchQuery: needle,
   selectNode,
+  hoverNode,
   openContextMenu: (pick) => {
     contextPick.value = pick
   },
 })
+
+let hoveredIds: string[] = []
+let pendingHover: TreeNode | null = null
+
+// Whole-model rows take long to highlight, so queued enter/leave events collapse into one diffed update per frame
+const scheduleHover = perFrame(() => {
+  const instance = viewer.value
+  const nextIds = pendingHover?.objectIds ?? []
+
+  if (!instance || nextIds === hoveredIds) return
+
+  const keep = new Set(nextIds)
+
+  batchFlagUploads(instance, () => {
+    instance.scene.setObjectsHighlighted(hoveredIds.filter(id => !keep.has(id)), false)
+    instance.scene.setObjectsHighlighted(nextIds, true)
+  })
+
+  hoveredIds = nextIds
+})
+
+function hoverNode(node: TreeNode | null) {
+  pendingHover = node
+  scheduleHover()
+}
 
 function refreshVisible() {
   if (viewer.value) visibleObjectIds.value = new Set(viewer.value.scene.visibleObjectIds)
@@ -285,7 +311,7 @@ watch(viewer, (instance, _, onCleanup) => {
   const { scene } = instance
 
   const subscriptions = [
-    scene.on('objectVisibility', scheduleVisibleRefresh),
+    onObjectVisibility(scene, scheduleVisibleRefresh),
     scene.on('objectSelected', (entity) => {
       scheduleSelectedRefresh()
 

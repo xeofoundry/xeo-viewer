@@ -94,10 +94,6 @@ function setExpandAll(expand: boolean) {
   localExpandCommand.value = { id: ++expandSequence, expand }
 }
 
-function setHighlighted(highlighted: boolean) {
-  if (hasObjects.value) viewer.value?.scene.setObjectsHighlighted(props.node.objectIds, highlighted)
-}
-
 function setVisible(event: Event) {
   viewer.value?.scene.setObjectsVisible(props.node.objectIds, (event.target as HTMLInputElement).checked)
 }
@@ -135,8 +131,8 @@ function onContextMenu(event: MouseEvent) {
       :title="node.title"
       @click="onRowClick"
       @contextmenu="onContextMenu"
-      @mouseenter="setHighlighted(true)"
-      @mouseleave="setHighlighted(false)"
+      @mouseenter="context.hoverNode(node)"
+      @mouseleave="context.hoverNode(null)"
     >
       <UIcon
         v-if="hasChildren"

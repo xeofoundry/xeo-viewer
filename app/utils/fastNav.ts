@@ -1,4 +1,4 @@
-import { FastNavPlugin, type Viewer } from '@xeokit/xeokit-sdk'
+import { FastNavPlugin, type Scene, type Viewer } from '@xeokit/xeokit-sdk'
 
 // xeovision's default "low" preset hides these types while the camera moves
 const HIDDEN_TYPES = new Set([
@@ -24,6 +24,21 @@ interface SceneInternals {
 }
 
 let plugin: FastNavPlugin | undefined
+let silent = false
+let staleListeners = false
+
+// Like scene.on('objectVisibility'), minus the temporary hiding FastNav does on every camera move.
+// Refreshing the explorer tree for it costs a pass over every mounted row, twice per move.
+export function onObjectVisibility(scene: Scene, run: () => void) {
+  staleListeners = true
+
+  return scene.on('objectVisibility', () => {
+    if (silent) return
+
+    staleListeners = true
+    run()
+  })
+}
 
 function hideTypesWhileMoving(viewer: Viewer) {
   const { scene } = viewer
@@ -32,11 +47,17 @@ function hideTypesWhileMoving(viewer: Viewer) {
     .filter(([id, type]) => HIDDEN_TYPES.has(type) && scene.objects[id]?.visible)
     .map(([id]) => id)
 
+  silent = true
   scene.setObjectsVisible(hidden, false)
+  silent = false
+  staleListeners = false
 
   // FastNav can call this twice (on stop and again from setFastNavEnabled), so it must be idempotent
   return () => {
+    // A listener that read the scene mid-move saw these objects hidden, so it has to hear about the restore
+    silent = !staleListeners
     scene.setObjectsVisible(hidden, true)
+    silent = false
     hidden = []
   }
 }
