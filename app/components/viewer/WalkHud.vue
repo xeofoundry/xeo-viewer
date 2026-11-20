@@ -2,6 +2,7 @@
 const PROMPTS = {
   door: 'Press F to enter',
   hide: 'Press left to hide',
+  inspect: 'Press left to inspect',
   move: 'Press left and hold to move',
   place: 'Release left to place',
 }

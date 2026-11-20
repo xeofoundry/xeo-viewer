@@ -7,6 +7,7 @@ const activeKeys = computed(() => new Set([
   ...(state.hideMode ? ['Q'] : []),
   ...(state.moveMode ? ['P'] : []),
   ...(state.snap ? ['N'] : []),
+  ...(state.inspectMode ? ['I'] : []),
   ...state.pressedKeys,
 ]))
 
@@ -22,12 +23,18 @@ const legend = computed(() => [
       ]
     : []),
   ...(state.hideMode ? [{ keys: [['LMB']], label: 'Hide element' }] : []),
+  ...(state.inspectMode
+    ? [
+        { keys: [['LMB']], label: 'Load object properties' },
+        { keys: [['Scroll']], label: 'Scroll properties' },
+      ]
+    : []),
   ...(state.flying ? [] : [{ keys: [['F']], label: 'Go through door' }]),
   ...(state.hideMode || state.moveMode ? [{ keys: [['R']], label: 'Restore hidden / moved objects' }] : []),
   // Moving objects is unavailable for DTX-encoded models
   viewer.value?.scene.dtxEnabled
-    ? { keys: [['G'], ['Q']], label: 'Free fly / hide' }
-    : { keys: [['G'], ['Q'], ['P']], label: 'Free fly / hide / move' },
+    ? { keys: [['G'], ['Q'], ['I']], label: 'Free fly / hide / inspect' }
+    : { keys: [['G'], ['Q'], ['P'], ['I']], label: 'Free fly / hide / move / inspect' },
   { keys: [['Esc']], label: 'Exit walk mode' },
 ])
 </script>

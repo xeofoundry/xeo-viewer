@@ -40,21 +40,29 @@ const LEGEND_KEYS = new Map([
   ['ControlRight', 'Ctrl'],
   ['KeyF', 'F'],
   ['KeyG', 'G'],
+  ['KeyI', 'I'],
   ['KeyN', 'N'],
   ['KeyP', 'P'],
   ['KeyQ', 'Q'],
   ['KeyR', 'R'],
 ])
 
-export type WalkModeTarget = 'door' | 'hide' | 'move' | 'place' | null
+export type WalkModeTarget = 'door' | 'hide' | 'inspect' | 'move' | 'place' | null
 
 export interface WalkModeState {
   target: WalkModeTarget
   hideMode: boolean
   moveMode: boolean
+  inspectMode: boolean
   flying: boolean
   snap: boolean
   pressedKeys: string[]
+}
+
+export interface WalkModeHandlers {
+  onExit: () => void
+  onInspectMode: (active: boolean) => void
+  onInspectPick: (entityId: string) => void
 }
 
 const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!)
@@ -71,7 +79,7 @@ export class WalkMode {
   readonly viewer: Viewer
 
   private readonly state: WalkModeState
-  private readonly onExit: () => void
+  private readonly handlers: WalkModeHandlers
   private readonly position: Vec3 = [0, 0, 0]
   private readonly pressedKeys = new Set<string>()
   private axes: Vec3 = [0, 1, 2]
@@ -106,14 +114,15 @@ export class WalkMode {
     KeyQ: () => this.toggleHideMode(),
     KeyG: () => this.setFlying(!this.state.flying),
     KeyP: () => this.setMoveMode(!this.state.moveMode),
+    KeyI: () => this.setInspectMode(!this.state.inspectMode),
     KeyN: () => this.toggleSnap(),
     KeyR: () => this.resetChanges(),
   }
 
-  constructor(viewer: Viewer, state: WalkModeState, onExit: () => void) {
+  constructor(viewer: Viewer, state: WalkModeState, handlers: WalkModeHandlers) {
     this.viewer = viewer
     this.state = state
-    this.onExit = onExit
+    this.handlers = handlers
   }
 
   activate() {
@@ -150,6 +159,7 @@ export class WalkMode {
 
     canvas.addEventListener('mousedown', this.lockPointer, { signal })
     canvas.addEventListener('mousedown', this.handlePrimaryDown, { signal })
+    canvas.addEventListener('wheel', this.forwardScroll, { signal })
     document.addEventListener('mouseup', this.releaseHeld, { signal })
     document.addEventListener('mousemove', this.handleMouseMove, { signal })
     window.addEventListener('keydown', this.handleKeyDown, { signal })
@@ -183,6 +193,7 @@ export class WalkMode {
 
     this.state.hideMode = false
     if (this.state.moveMode) this.setMoveMode(false)
+    if (this.state.inspectMode) this.setInspectMode(false)
     if (this.state.flying) this.setFlying(false)
 
     this.viewer.scene.setObjectsVisible(this.hiddenEntityIds, true)
@@ -259,11 +270,18 @@ export class WalkMode {
     if (!entityId) this.state.target = null
     else if (this.state.moveMode) this.state.target = 'move'
     else if (this.state.hideMode) this.state.target = 'hide'
+    else if (this.state.inspectMode) this.state.target = 'inspect'
     else this.state.target = 'door'
   }
 
   private handlePrimaryDown = (event: MouseEvent) => {
     if (event.button !== 0) return
+
+    if (this.state.inspectMode) {
+      if (this.targetEntityId) this.handlers.onInspectPick(this.targetEntityId)
+      return
+    }
+
     if (this.state.hideMode) return this.hideTarget()
     if (!this.state.moveMode || this.heldEntityId) return
 
@@ -372,9 +390,30 @@ export class WalkMode {
     return [...worldNormal].map(value => (sign * value) / length)
   }
 
+  private setInspectMode(active: boolean) {
+    if (active && this.state.hideMode) this.toggleHideMode()
+    if (active && this.state.moveMode) this.setMoveMode(false)
+
+    this.state.inspectMode = active
+    this.handlers.onInspectMode(active)
+
+    this.setTarget(undefined)
+    this.viewChanged = true
+    this.targetScanDue = 0
+  }
+
+  // Pointer lock sends the wheel to the canvas, so it is passed on to the properties panel
+  private forwardScroll = (event: WheelEvent) => {
+    if (!this.state.inspectMode) return
+
+    document.querySelector('[data-properties-scroll]')?.scrollBy({ top: event.deltaY })
+  }
+
   private setMoveMode(active: boolean) {
     // Moving objects relies on Entity offsets, which DTX-encoded models do not support
     if (active && this.viewer.scene.dtxEnabled) return
+
+    if (active && this.state.inspectMode) this.setInspectMode(false)
 
     this.state.moveMode = active
     if (active && this.state.hideMode) this.toggleHideMode()
@@ -393,6 +432,7 @@ export class WalkMode {
 
   private toggleHideMode() {
     this.state.hideMode = !this.state.hideMode
+    if (this.state.hideMode && this.state.inspectMode) this.setInspectMode(false)
     if (this.state.hideMode && this.state.moveMode) this.setMoveMode(false)
 
     this.setTarget(undefined)
@@ -419,7 +459,7 @@ export class WalkMode {
     const reach = hit?.worldPos ? distance(hit.worldPos, this.viewer.camera.eye) : Infinity
 
     const interactive = !!entityId && reach <= TARGET_REACH
-      && (this.state.moveMode || this.state.hideMode || (!this.state.flying && DOOR_TYPES.has(this.entityType(entityId))))
+      && (this.state.moveMode || this.state.hideMode || this.state.inspectMode || (!this.state.flying && DOOR_TYPES.has(this.entityType(entityId))))
 
     this.targetPoint = interactive && hit?.worldPos ? [...hit.worldPos] : undefined
     this.setTarget(interactive ? entityId : undefined)
@@ -605,7 +645,7 @@ export class WalkMode {
   private handlePointerLockChange = () => {
     if (!this.active || document.pointerLockElement) return
 
-    this.onExit()
+    this.handlers.onExit()
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
@@ -617,7 +657,7 @@ export class WalkMode {
       this.emitPressedKeys()
     }
 
-    if (event.code === 'Escape') return this.onExit()
+    if (event.code === 'Escape') return this.handlers.onExit()
 
     const action = this.keyActions[event.code]
 

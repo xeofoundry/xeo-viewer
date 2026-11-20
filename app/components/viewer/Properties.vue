@@ -49,7 +49,10 @@ function visiblePropertySets(object: PropertyObject) {
       class="shrink-0"
     />
 
-    <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+    <div
+      class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto"
+      data-properties-scroll
+    >
       <div
         v-for="[key, object] in entries"
         :key="key"
