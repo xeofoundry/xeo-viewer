@@ -1,6 +1,6 @@
 {
   "name": "@xeofoundry/xeo-viewer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BIM viewer for XKT models as a single-file <xeo-viewer> web component",
   "license": "AGPL-3.0-only",
   "type": "module",
