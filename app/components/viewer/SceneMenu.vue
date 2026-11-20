@@ -7,6 +7,7 @@ const properties = useProperties()
 const tool = useToolMode()
 const measurements = useMeasurements()
 const slices = useSlices()
+const { clearFilters } = useFilters()
 
 const open = ref(false)
 const items = shallowRef<DropdownMenuItem[][]>([])
@@ -38,12 +39,20 @@ function sceneItems(instance: Viewer) {
       label: 'Show All',
       disabled: scene.numVisibleObjects >= scene.numObjects && !scene.numXRayedObjects && !scene.numSelectedObjects,
       onSelect: () => {
+        clearFilters()
         scene.setObjectsVisible(scene.objectIds, true)
         scene.setObjectsXRayed(scene.xrayedObjectIds, false)
         properties.clearSelection()
       },
     },
-    hideAll: { label: 'Hide All', disabled: !scene.numVisibleObjects, onSelect: () => scene.setObjectsVisible(scene.visibleObjectIds, false) },
+    hideAll: {
+      label: 'Hide All',
+      disabled: !scene.numVisibleObjects,
+      onSelect: () => {
+        clearFilters()
+        scene.setObjectsVisible(scene.visibleObjectIds, false)
+      },
+    },
     selectNone: { label: 'Select None', disabled: !scene.numSelectedObjects, onSelect: properties.clearSelection },
   } satisfies Record<string, DropdownMenuItem>
 }
@@ -249,6 +258,7 @@ function canvasItems(instance: Viewer): DropdownMenuItem[][] {
       {
         label: 'Reset View',
         onSelect: () => {
+          clearFilters()
           scene.setObjectsXRayed(scene.xrayedObjectIds, false)
           scene.setObjectsHighlighted(scene.highlightedObjectIds, false)
           scene.setObjectsVisible(scene.objectIds, true)

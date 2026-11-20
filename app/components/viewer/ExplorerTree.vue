@@ -8,6 +8,7 @@ const props = defineProps<{ tab: ExplorerTab }>()
 const viewer = useViewer()
 const { models } = useModels()
 const properties = useProperties()
+const { clearFilters } = useFilters()
 
 const trees = shallowRef<TreeNode[]>([])
 const visibleObjectIds = shallowRef(new Set<string>())
@@ -176,7 +177,10 @@ function contextMenuItems(pick: TreePick, viewerInstance: Viewer): ContextMenuIt
           {
             label: 'Show All',
             disabled: scene.numVisibleObjects >= scene.numObjects && !scene.numXRayedObjects && !scene.numSelectedObjects,
-            onSelect: () => scene.setObjectsVisible(scene.objectIds, true),
+            onSelect: () => {
+              clearFilters()
+              scene.setObjectsVisible(scene.objectIds, true)
+            },
           },
         ],
       },
@@ -191,7 +195,14 @@ function contextMenuItems(pick: TreePick, viewerInstance: Viewer): ContextMenuIt
               scene.setObjectsVisible(ids, true)
             },
           },
-          { label: 'Hide All', disabled: !scene.numVisibleObjects, onSelect: () => scene.setObjectsVisible(scene.visibleObjectIds, false) },
+          {
+            label: 'Hide All',
+            disabled: !scene.numVisibleObjects,
+            onSelect: () => {
+              clearFilters()
+              scene.setObjectsVisible(scene.visibleObjectIds, false)
+            },
+          },
         ],
       },
       {

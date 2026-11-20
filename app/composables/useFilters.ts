@@ -43,6 +43,9 @@ function removeCondition(id: number) {
 function clearFilters() {
   conditions.value = []
   classes.value = []
+
+  // Applied at once, so the debounced run cannot re-show objects a caller hides right after
+  apply()
 }
 
 export const useFilters = () => ({ conditions, classes, hiddenIds, result, activeCount, addCondition, removeCondition, clearFilters })
