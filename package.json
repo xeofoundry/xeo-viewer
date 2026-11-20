@@ -7,6 +7,7 @@
     "build": "nuxt build && vite build -c vite.webcomponent.config.ts",
     "build:static": "nuxt build",
     "build:webcomponent": "vite build -c vite.webcomponent.config.ts",
+    "build:npm": "vite build -c vite.webcomponent.config.ts && cp npm/package.json README.md LICENSE dist/webcomponent/",
     "example": "vite build -c vite.webcomponent.config.ts && vite preview --outDir . --open /example/",
     "dev": "nuxt dev",
     "generate": "nuxt generate",

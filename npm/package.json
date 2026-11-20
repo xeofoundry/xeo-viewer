@@ -1,0 +1,23 @@
+{
+  "name": "@xeofoundry/xeo-viewer",
+  "version": "0.1.0",
+  "description": "BIM viewer for XKT models as a single-file <xeo-viewer> web component",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "main": "./xeo-viewer.js",
+  "module": "./xeo-viewer.js",
+  "exports": {
+    ".": "./xeo-viewer.js"
+  },
+  "files": [
+    "xeo-viewer.js"
+  ],
+  "sideEffects": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xeofoundry/xeo-viewer.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
