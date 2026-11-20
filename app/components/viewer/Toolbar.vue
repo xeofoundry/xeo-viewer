@@ -106,6 +106,7 @@ function viewFit() {
     <img
       :src="`${baseURL}xeokit-logo.svg`"
       alt="xeokit"
+      draggable="false"
       class="h-8"
     >
 
