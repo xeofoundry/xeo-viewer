@@ -15,7 +15,6 @@ interface PanelGeometry {
 
 export const PanelAreaSizeKey: InjectionKey<PanelAreaSize> = Symbol('panel-area-size')
 
-const MARGIN = 8
 const MIN_WIDTH = 280
 const MIN_HEIGHT = 160
 const DRAG_THRESHOLD = 15
@@ -65,10 +64,10 @@ export function usePanelTransform(options: {
 
   const isManual = computed(() => geometry.value.x !== null || geometry.value.y !== null)
 
-  const width = computed(() => clamp(geometry.value.width, MIN_WIDTH, areaWidth.value - MARGIN * 2))
-  const left = computed(() => clamp(geometry.value.x ?? MARGIN, MARGIN, areaWidth.value - width.value - MARGIN))
-  const top = computed(() => clamp(geometry.value.y ?? MARGIN, MARGIN, areaHeight.value - minHeight - MARGIN))
-  const availableHeight = computed(() => Math.max(minHeight, areaHeight.value - top.value - MARGIN))
+  const width = computed(() => clamp(geometry.value.width, MIN_WIDTH, areaWidth.value))
+  const left = computed(() => clamp(geometry.value.x ?? 0, 0, areaWidth.value - width.value))
+  const top = computed(() => clamp(geometry.value.y ?? 0, 0, areaHeight.value - minHeight))
+  const availableHeight = computed(() => Math.max(minHeight, areaHeight.value - top.value))
 
   const zIndex = ref(++topZIndex)
 
