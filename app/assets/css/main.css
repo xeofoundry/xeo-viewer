@@ -34,6 +34,35 @@
   outline: none !important;
 }
 
+/* Copied into app/spa-loading-template.html, which shows the spinner before this stylesheet loads.
+   Only a transform animates: the compositor keeps it smooth while loading blocks the main thread. */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  animation: loading-spinner-rotate 1s linear infinite;
+}
+
+.loading-spinner circle {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.loading-spinner .track {
+  stroke: rgb(255 255 255 / 0.15);
+}
+
+.loading-spinner .arc {
+  stroke: white;
+  stroke-dasharray: 32 126;
+}
+
+@keyframes loading-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* xeokit's built-in loading spinner has no off switch; the app shows its own indicator instead */
 .sk-fading-circle {
   display: none;
