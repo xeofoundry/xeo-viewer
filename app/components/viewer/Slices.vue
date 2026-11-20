@@ -16,6 +16,8 @@ let plugin: SectionPlanesPlugin | undefined
 let preview: Mesh | undefined
 let unsubscribe = () => {}
 
+useSlices().register({ count: () => planes.value.length, clear })
+
 watch(viewer, (instance) => {
   if (!instance) return
 

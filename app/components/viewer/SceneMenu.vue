@@ -6,6 +6,7 @@ const viewer = useViewer()
 const properties = useProperties()
 const tool = useToolMode()
 const measurements = useMeasurements()
+const slices = useSlices()
 
 const open = ref(false)
 const items = shallowRef<DropdownMenuItem[][]>([])
@@ -45,6 +46,10 @@ function sceneItems(instance: Viewer) {
     hideAll: { label: 'Hide All', disabled: !scene.numVisibleObjects, onSelect: () => scene.setObjectsVisible(scene.visibleObjectIds, false) },
     selectNone: { label: 'Select None', disabled: !scene.numSelectedObjects, onSelect: properties.clearSelection },
   } satisfies Record<string, DropdownMenuItem>
+}
+
+function clearSlicesItem(): DropdownMenuItem {
+  return { label: 'Clear All Slices', disabled: !slices.count(), onSelect: slices.clear }
 }
 
 function measurementsMenu(): DropdownMenuItem {
@@ -219,7 +224,7 @@ function objectItems(instance: Viewer, target: SceneModelEntity): DropdownMenuIt
         ],
       },
     ],
-    [measurementsMenu()],
+    [clearSlicesItem(), measurementsMenu()],
   ]
 }
 
@@ -251,6 +256,7 @@ function canvasItems(instance: Viewer): DropdownMenuItem[][] {
           fitView(instance, 0.5, HOME_DIRECTION)
         },
       },
+      clearSlicesItem(),
       measurementsMenu(),
     ],
   ]
