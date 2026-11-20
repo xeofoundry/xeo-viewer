@@ -200,6 +200,7 @@ function peek(plane?: SectionPlane) {
             <div class="grid grid-cols-2 gap-1">
               <UButton
                 label="Clear all"
+                icon="i-lucide-trash-2"
                 color="neutral"
                 variant="ghost"
                 @click="clear"
@@ -207,6 +208,7 @@ function peek(plane?: SectionPlane) {
 
               <UButton
                 label="Flip all"
+                icon="i-lucide-flip-horizontal-2"
                 color="neutral"
                 variant="ghost"
                 @click="plugin?.flipSectionPlanes()"
@@ -214,6 +216,7 @@ function peek(plane?: SectionPlane) {
 
               <UButton
                 label="Hide all"
+                icon="i-lucide-eye-off"
                 color="neutral"
                 variant="ghost"
                 @click="setAllActive(false)"
@@ -221,6 +224,7 @@ function peek(plane?: SectionPlane) {
 
               <UButton
                 label="Show all"
+                icon="i-lucide-eye"
                 color="neutral"
                 variant="ghost"
                 @click="setAllActive(true)"
