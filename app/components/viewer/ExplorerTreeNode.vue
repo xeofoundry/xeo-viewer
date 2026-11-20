@@ -84,6 +84,8 @@ const nameSegments = computed(() => {
   return segments
 })
 
+const isCurrentMatch = computed(() => context.currentMatch.value === props.node)
+
 const pick = () => ({ node: props.node, modelId: props.modelId, isModelRoot: props.depth === 0 })
 
 function toggleExpanded() {
@@ -175,7 +177,8 @@ function onContextMenu(event: MouseEvent) {
           >
             <mark
               v-if="segment.match"
-              class="rounded-xs bg-violet-400/30 px-px text-inherit"
+              class="rounded-xs px-px text-inherit"
+              :class="isCurrentMatch ? 'bg-primary/70' : 'bg-primary/30'"
             >{{ segment.text }}</mark>
             <template v-else>{{ segment.text }}</template>
           </template>

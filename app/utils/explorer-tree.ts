@@ -38,6 +38,7 @@ export interface ExplorerTreeContext {
   selectedObjectIds: ShallowRef<Set<string>>
   selectedNodes: ShallowRef<Set<TreeNode>>
   searchQuery: Ref<string>
+  currentMatch: Ref<TreeNode | null>
   selectNode: (pick: TreePick, additive: boolean, range?: boolean) => void
   hoverNode: (node: TreeNode | null) => void
   openContextMenu: (pick: TreePick) => void
@@ -356,4 +357,21 @@ export function filterTree(node: TreeNode, needle: string): TreeNode | null {
   const children = node.children.map(child => filterTree(child, needle)).filter(child => !!child)
 
   return children.length ? { ...node, children, origin: node.origin ?? node } : null
+}
+
+export interface TreeMatch {
+  node: TreeNode
+  path: string[]
+}
+
+export function findMatches(nodes: TreeNode[], needle: string, parentPath: string[] = [], matches: TreeMatch[] = []) {
+  for (const node of nodes) {
+    const path = [...parentPath, node.key]
+
+    if (node.search.includes(needle)) matches.push({ node, path })
+
+    findMatches(node.children, needle, path, matches)
+  }
+
+  return matches
 }

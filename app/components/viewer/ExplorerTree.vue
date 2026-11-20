@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContextMenuItem } from '@nuxt/ui'
+import { refDebounced } from '@vueuse/core'
 import type { SceneModel, Viewer } from '@xeokit/xeokit-sdk'
 
 const props = defineProps<{ tab: ExplorerTab }>()
@@ -16,11 +17,29 @@ const reveal = shallowRef<RevealRequest | null>(null)
 const contextPick = shallowRef<TreePick | null>(null)
 
 const query = ref('')
-const needle = computed(() => query.value.trim().toLowerCase())
+const debouncedQuery = refDebounced(query, 200)
+const needle = computed(() => debouncedQuery.value.trim().toLowerCase())
 
 const shownTrees = computed(() => needle.value
   ? trees.value.map(tree => filterTree(tree, needle.value)).filter(tree => !!tree)
   : trees.value)
+
+const matches = computed(() => needle.value ? findMatches(shownTrees.value, needle.value) : [])
+const matchIndex = ref(-1)
+const currentMatch = computed(() => matches.value[matchIndex.value]?.node ?? null)
+
+watch(matches, () => {
+  matchIndex.value = -1
+})
+
+function stepMatch(step: number) {
+  const count = matches.value.length
+
+  if (!count) return
+
+  matchIndex.value = (Math.max(matchIndex.value, step > 0 ? -1 : 0) + step + count) % count
+  reveal.value = { id: ++revealCounter, path: matches.value[matchIndex.value]!.path }
+}
 
 let suppressReveal = false
 let anchorNode: TreeNode | null = null
@@ -220,6 +239,7 @@ provide(ExplorerTreeContextKey, {
   selectedObjectIds,
   selectedNodes,
   searchQuery: needle,
+  currentMatch,
   selectNode,
   hoverNode,
   openContextMenu: (pick) => {
@@ -333,10 +353,13 @@ watch(viewer, (instance, _, onCleanup) => {
       v-if="trees.length"
       v-model="query"
       icon="i-lucide-search"
+      :loading="query !== debouncedQuery"
       placeholder="Search tree..."
       aria-label="Search tree"
-      class="mb-3 shrink-0"
+      class="shrink-0"
+      :class="{ 'mb-3': !needle }"
       :ui="{ trailing: 'pe-1' }"
+      @keydown.enter.prevent="stepMatch($event.shiftKey ? -1 : 1)"
     >
       <template
         v-if="query"
@@ -352,6 +375,40 @@ watch(viewer, (instance, _, onCleanup) => {
         />
       </template>
     </UInput>
+
+    <div
+      v-if="needle"
+      class="flex shrink-0 items-center gap-0.5 py-1 pl-1 text-xs text-muted"
+    >
+      <span
+        class="flex-1"
+        aria-live="polite"
+      >
+        {{ matchIndex < 0 ? `${matches.length} results` : `${matchIndex + 1} of ${matches.length}` }}
+      </span>
+
+      <UButton
+        icon="i-lucide-chevron-up"
+        size="xs"
+        color="neutral"
+        variant="ghost"
+        title="Previous result (Shift+Enter)"
+        aria-label="Previous result"
+        :disabled="!matches.length"
+        @click="stepMatch(-1)"
+      />
+
+      <UButton
+        icon="i-lucide-chevron-down"
+        size="xs"
+        color="neutral"
+        variant="ghost"
+        title="Next result (Enter)"
+        aria-label="Next result"
+        :disabled="!matches.length"
+        @click="stepMatch(1)"
+      />
+    </div>
 
     <UContextMenu :items="menuItems">
       <div
