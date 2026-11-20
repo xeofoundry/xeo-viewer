@@ -6,7 +6,7 @@
 }
 
 :root {
-  --ui-primary: #060729;
+  --ui-primary: var(--ui-color-primary-600);
 }
 
 /* Tailwind v4 preflight resets buttons to cursor: default */

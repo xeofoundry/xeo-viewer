@@ -232,7 +232,7 @@ function peek(plane?: SectionPlane) {
             <div
               v-for="(plane, index) in planes"
               :key="plane.id"
-              class="flex items-center justify-between gap-2 rounded-md py-1 pl-2 hover:bg-elevated"
+              class="flex items-center justify-between gap-2 rounded-md py-1 pl-2 hover:bg-white/10"
               @mouseenter="peek(plane)"
               @mouseleave="peek()"
             >
