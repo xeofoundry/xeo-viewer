@@ -12,6 +12,8 @@ const properties = computed(() => {
   return summarizeProperties([...index.propsByObject.values()].filter(props => selected.has(props.get(CLASS_PROPERTY)![0]!)))
 })
 
+const allClassesSelected = computed(() => !!classes.value.length && classes.value.length === propertyIndex.value?.classes.length)
+
 const propertyNames = computed(() => [...properties.value?.keys() ?? []])
 
 const operators = (property: string) => OPERATORS_BY_TYPE[properties.value?.get(property)?.dataType ?? 'string']
@@ -54,7 +56,19 @@ watch(properties, (available) => {
       placeholder="Filter by class"
       aria-label="Filter by class"
       class="w-full shrink-0"
-    />
+    >
+      <template #content-bottom>
+        <UButton
+          :label="allClassesSelected ? 'Deselect all' : 'Select all'"
+          :icon="allClassesSelected ? 'i-lucide-square' : 'i-lucide-check-check'"
+          size="sm"
+          color="neutral"
+          variant="ghost"
+          class="m-1"
+          @click="classes = allClassesSelected ? [] : [...propertyIndex?.classes ?? []]"
+        />
+      </template>
+    </USelectMenu>
 
     <template
       v-for="(condition, index) in conditions"
@@ -97,25 +111,21 @@ watch(properties, (available) => {
             aria-label="Operator"
           />
 
-          <template v-if="needsValue(condition.operator)">
-            <UInput
-              v-model="condition.value"
-              placeholder="Value"
-              aria-label="Value"
-              autocomplete="off"
-              :list="`filter-values-${condition.id}`"
-              :disabled="!condition.property"
-              class="col-span-2"
-            />
-
-            <datalist :id="`filter-values-${condition.id}`">
-              <option
-                v-for="value in properties.get(condition.property)?.values"
-                :key="value"
-                :value="value"
-              />
-            </datalist>
-          </template>
+          <UInputMenu
+            v-if="needsValue(condition.operator)"
+            v-model="condition.value"
+            mode="autocomplete"
+            :items="properties.get(condition.property)?.values"
+            placeholder="Value"
+            aria-label="Value"
+            autocomplete="off"
+            open-on-focus
+            clear
+            virtualize
+            :disabled="!condition.property"
+            class="col-span-2"
+            @clear="condition.value = ''"
+          />
         </div>
 
         <UButton
@@ -153,7 +163,7 @@ watch(properties, (available) => {
         color="neutral"
         variant="ghost"
         class="ml-auto"
-        @click="addCondition"
+        @click="addCondition()"
       />
     </div>
   </div>

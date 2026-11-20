@@ -32,8 +32,14 @@ function apply() {
 watchDebounced([conditions, classes], apply, { debounce: 150, deep: true })
 watch(loadedModels, apply)
 
-function addCondition() {
-  conditions.value.push({ id: ++nextId, property: '', operator: 'equals', value: '', join: 'AND' })
+function addCondition(property = '', value = '') {
+  const isBoolean = propertyIndex.value?.properties.get(property)?.dataType === 'boolean'
+  let operator: FilterOperator = 'equals'
+
+  if (property && !value.trim()) operator = 'isEmpty'
+  else if (isBoolean) operator = isTruthy(value) ? 'isTrue' : 'isFalse'
+
+  conditions.value.push({ id: ++nextId, property, operator, value: needsValue(operator) ? value : '', join: 'AND' })
 }
 
 function removeCondition(id: number) {

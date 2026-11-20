@@ -44,7 +44,7 @@ export const isActiveCondition = (condition: FilterCondition) =>
   !!condition.property && (!needsValue(condition.operator) || condition.value.trim() !== '')
 
 // IFC exports booleans as .T. and .F.
-const isTruthy = (value: string) => ['true', '.t.', '1'].includes(value.trim().toLowerCase())
+export const isTruthy = (value: string) => ['true', '.t.', '1'].includes(value.trim().toLowerCase())
 const isFalsy = (value: string) => ['false', '.f.', '0'].includes(value.trim().toLowerCase())
 
 function parseDate(value: string) {

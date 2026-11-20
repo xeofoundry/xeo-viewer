@@ -34,6 +34,7 @@ export default defineAppConfig({
     input: field,
     select: { ...field, slots: { ...menu, item: selectItem } },
     selectMenu: { ...field, slots: { ...menu, item: selectItem } },
+    inputMenu: { ...field, slots: { ...menu, item: selectItem } },
     dropdownMenu: { slots: menu, variants: menuHighlight },
     contextMenu: { slots: menu, variants: menuHighlight },
     popover: {
