@@ -37,8 +37,8 @@ function boldNavCubeLabels(navCube: NavCubePlugin) {
 }
 
 onMounted(() => {
-  // Entity offsets let walk mode move objects
-  const instance = new Viewer({ canvasElement: canvas.value!, transparent: true, entityOffsetsEnabled: true })
+  // Entity offsets let walk mode move objects, readable geometry lets slices draw section caps
+  const instance = new Viewer({ canvasElement: canvas.value!, transparent: true, entityOffsetsEnabled: true, readableGeometryEnabled: true })
 
   // Only the direction matters: fitView keeps it and refits the distance to the model
   instance.camera.eye = HOME_DIRECTION

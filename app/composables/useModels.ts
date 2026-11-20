@@ -1,4 +1,4 @@
-import { XKTLoaderPlugin, type SceneModel, type Viewer } from '@xeokit/xeokit-sdk'
+import { PhongMaterial, XKTLoaderPlugin, type SceneModel, type Viewer } from '@xeokit/xeokit-sdk'
 
 interface LoadedModel {
   id: string
@@ -19,10 +19,13 @@ export const propertyIndex = computed(() => {
 
 let loader: XKTLoaderPlugin | undefined
 
+const capMaterials = new Map<string, PhongMaterial>()
+
 // A new viewer (HMR remount of the scene) starts empty, and loads still pending in the old one never settle
 watch(useViewer(), () => {
   models.value = []
   pending.value = 0
+  capMaterials.clear()
 }, { flush: 'sync' })
 
 const stem = (name: string) => name.replace(/\.[^.]*$/, '').toLowerCase()
@@ -65,6 +68,22 @@ function parse(viewer: Viewer, xkt: ArrayBuffer, metaModelData: unknown) {
   })
 }
 
+// The object color comes from its IfcMaterial style. Must run before the model is listed, while grouping has not colorized it yet.
+// Transparent objects (glass, IfcSpace) get no caps, or a cut would fill rooms and panes.
+function setCapMaterials(viewer: Viewer, model: SceneModel) {
+  for (const entity of Object.values(model.objects)) {
+    if (entity.opacity < 1) continue
+
+    const color = [...entity.colorize]
+    const key = color.join()
+    let material = capMaterials.get(key)
+
+    if (!material) capMaterials.set(key, material = new PhongMaterial(viewer.scene, { diffuse: color, backfaces: true }))
+
+    entity.capMaterial = material
+  }
+}
+
 export function useModels() {
   const viewer = useViewer()
   const toast = useToast()
@@ -81,6 +100,7 @@ export function useModels() {
 
       if (viewer.value !== instance) return
 
+      setCapMaterials(instance, model)
       models.value = [...models.value, { id: String(model.id), name }]
       fitView(instance)
     }

@@ -23,6 +23,8 @@ watch(viewer, (instance) => {
 
   const { scene } = instance
 
+  makeCapsUnpickable(scene)
+
   plugin = new SectionPlanesPlugin(instance, { overviewVisible: false })
   preview = new Mesh(scene, {
     geometry: new ReadableGeometry(scene, {
@@ -72,6 +74,25 @@ onBeforeUnmount(() => {
     preview?.destroy()
   }
 })
+
+// SectionCaps registers caps as pickable objects with no SceneModel behind them, which the pick handlers rely on.
+// Mesh sets pickable from its config right after registering, so the override waits for the constructor to finish.
+function makeCapsUnpickable(scene: object) {
+  const internals = scene as { _registerObject?: (object: unknown) => void }
+  const register = internals._registerObject?.bind(scene)
+
+  if (!register) return
+
+  internals._registerObject = (object) => {
+    register(object)
+
+    if (object instanceof Mesh) {
+      queueMicrotask(() => {
+        object.pickable = false
+      })
+    }
+  }
+}
 
 function stopAdding() {
   unsubscribe()
