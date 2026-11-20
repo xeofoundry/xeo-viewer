@@ -55,6 +55,22 @@ Emits a single `dist/webcomponent/xeo-viewer.js` with styles, icons and images i
 <xeo-viewer model="https://example.com/model.xkt" style="height: 600px"></xeo-viewer>
 ```
 
+The same file is on npm as [`@xeofoundry/xeo-viewer`](https://www.npmjs.com/package/@xeofoundry/xeo-viewer):
+
+```bash
+npm install @xeofoundry/xeo-viewer
+```
+
+```js
+import '@xeofoundry/xeo-viewer'
+```
+
+You can also load it from a CDN without an install step:
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@xeofoundry/xeo-viewer"></script>
+```
+
 | Name | Type | Description |
 | --- | --- | --- |
 | `model` | attribute | URL of the XKT file. Read once, when the element is added. |
@@ -74,6 +90,15 @@ pnpm example
 ```
 
 Builds the web component, serves the repository with `vite preview` and opens [example/index.html](example/index.html) in the browser. The page embeds `<xeo-viewer>` with the sample model from `public/models` and shows how to use it.
+
+## Release
+
+The `Publish to npm` workflow runs on every merge to `main`. If the version in [npm/package.json](npm/package.json) is not on npm, the workflow publishes the web component.
+
+1. Change `version` in `npm/package.json` in your pull request.
+2. Merge the pull request to `main`.
+
+If you do not change the version, the workflow skips the publish step.
 
 ## License
 
