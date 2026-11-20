@@ -96,6 +96,9 @@ export function useModels() {
     pending.value++
 
     try {
+      // Parsing blocks the main thread for seconds on big models, so the spinner has to be painted before it starts
+      await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve)))
+
       const model = await parse(instance, ...await read())
 
       if (viewer.value !== instance) return
