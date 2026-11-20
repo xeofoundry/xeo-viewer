@@ -15,6 +15,7 @@ const { activeCount: groupingCount } = useGrouping()
 // Filters and grouping keep acting on the model after their panel closes
 const badges = computed<Partial<Record<string, number>>>(() => ({ filters: filterCount.value, grouping: groupingCount.value }))
 
+const { active: walking, setWalkMode } = useWalkMode()
 const isOrtho = ref(false)
 
 const tools = [
@@ -30,6 +31,11 @@ const meta = useKeyModifier('Meta')
 onKeyStroke('Escape', () => {
   clearSelection()
   tool.value = 'select'
+})
+
+// Walk mode turns the camera control off, so a measuring or slicing click would land on a locked pointer
+watch(walking, (active) => {
+  if (active) tool.value = 'select'
 })
 
 watch([viewer, tool], ([instance, mode], _, onCleanup) => {
@@ -164,6 +170,21 @@ function viewFit() {
           variant="ghost"
           aria-label="View fit"
           @click="viewFit"
+        />
+      </UTooltip>
+
+      <!-- Walk mode needs a keyboard and pointer lock, so it is desktop only -->
+      <UTooltip text="Walk mode">
+        <UButton
+          icon="i-lucide-footprints"
+          size="xl"
+          square
+          class="hidden md:inline-flex"
+          :color="walking ? 'primary' : 'neutral'"
+          :variant="walking ? 'solid' : 'ghost'"
+          aria-label="Walk mode"
+          :aria-pressed="walking"
+          @click="setWalkMode(!walking)"
         />
       </UTooltip>
     </div>

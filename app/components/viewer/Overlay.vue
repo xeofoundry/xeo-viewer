@@ -7,6 +7,7 @@ const { width, height } = useElementSize(panelArea)
 provide(PanelAreaSizeKey, { width, height })
 
 const open = useOpenPanels()
+const { active: walking } = useWalkMode()
 
 const columns = {
   left: panels.filter(panel => panel.column === 'left'),
@@ -45,6 +46,8 @@ const columns = {
           <ViewerFilters v-else-if="panel.id === 'filters' && open.filters" />
           <ViewerGrouping v-else-if="panel.id === 'grouping' && open.grouping" />
         </ViewerPanel>
+
+        <ViewerWalkLegend v-if="walking && column === 'right'" />
       </div>
 
       <!-- Without row-start-1, grid auto-placement would push it below the right column, which precedes it in the DOM -->
@@ -65,5 +68,7 @@ const columns = {
         @click="resetPanelLayout"
       />
     </footer>
+
+    <ViewerWalkHud v-if="walking" />
   </div>
 </template>
