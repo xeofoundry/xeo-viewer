@@ -8,12 +8,14 @@ const { showObject, hide, clearSelection } = useProperties()
 
 const open = useOpenPanels()
 const tool = useToolMode()
-const { setMeasuring } = useMeasurements()
+const { setMeasuring, count: measureCount } = useMeasurements()
+const slices = useSlices()
 const { activeCount: filterCount } = useFilters()
 const { activeCount: groupingCount } = useGrouping()
 
 // Filters and grouping keep acting on the model after their panel closes
 const badges = computed<Partial<Record<string, number>>>(() => ({ filters: filterCount.value, grouping: groupingCount.value }))
+const toolBadges = computed<Partial<Record<ToolMode, number>>>(() => ({ measure: measureCount.value, slice: slices.count() }))
 
 const { active: walking, setWalkMode } = useWalkMode()
 const isOrtho = ref(false)
@@ -128,7 +130,7 @@ function viewFit() {
           :show="!!badges[panel.id]"
           color="neutral"
           size="3xl"
-          inset
+          :ui="{ base: 'z-10 ring-2 text-[8px] font-bold' }"
         >
           <UButton
             :icon="panel.icon"
@@ -201,16 +203,24 @@ function viewFit() {
         :key="item.id"
         :text="item.label"
       >
-        <UButton
-          :icon="item.icon"
-          size="xl"
-          square
-          :color="tool === item.id ? 'primary' : 'neutral'"
-          :variant="tool === item.id ? 'solid' : 'ghost'"
-          :aria-label="item.label"
-          :aria-pressed="tool === item.id"
-          @click="tool = tool === item.id ? null : item.id"
-        />
+        <UChip
+          :text="toolBadges[item.id]"
+          :show="!!toolBadges[item.id]"
+          color="neutral"
+          size="3xl"
+          :ui="{ base: 'z-10 ring-2 text-[8px] font-bold' }"
+        >
+          <UButton
+            :icon="item.icon"
+            size="xl"
+            square
+            :color="tool === item.id ? 'primary' : 'neutral'"
+            :variant="tool === item.id ? 'solid' : 'ghost'"
+            :aria-label="item.label"
+            :aria-pressed="tool === item.id"
+            @click="tool = tool === item.id ? null : item.id"
+          />
+        </UChip>
       </UTooltip>
     </div>
 

@@ -16,6 +16,7 @@ const { DistanceMeasurementEditMouseControl, DistanceMeasurementEditTouchControl
 const touch = matchMedia('(pointer: coarse)').matches
 
 const editing = ref(false)
+const count = ref(0)
 const hovered = shallowRef<Measurement>()
 // The measurement whose menu is open keeps its highlight while the pointer moves into the menu
 const pinned = shallowRef<Measurement>()
@@ -48,7 +49,14 @@ function createTools(viewer: Viewer) {
     if (!editing.value && pinned.value !== measurement) measurement.setHighlighted(false)
   })
 
+  // The mouse control destroys a cancelled measurement directly, which skips the plugin's measurementDestroyed event
+  plugin.on('measurementCreated', (measurement) => {
+    count.value++
+    measurement.on('destroyed', () => count.value--)
+  })
+
   editing.value = false
+  count.value = 0
 
   return {
     plugin,
@@ -108,5 +116,5 @@ export function useMeasurements() {
     if (tool.value === 'measure') setMeasuring(true)
   }
 
-  return { editing, hovered, pinned, measureTools, setMeasuring, startEdit, endEdit }
+  return { editing, count, hovered, pinned, measureTools, setMeasuring, startEdit, endEdit }
 }
