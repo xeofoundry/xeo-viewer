@@ -40,7 +40,7 @@ const legend = computed(() => [
 </script>
 
 <template>
-  <div class="hidden w-fit shrink-0 grid-cols-[auto_auto] items-center gap-x-3 gap-y-0.5 self-end rounded-[21px] bg-surface/70 px-5 py-4 text-xs text-highlighted backdrop-blur-md md:grid">
+  <div class="hidden w-fit shrink-0 grid-cols-[auto_auto] items-center gap-x-3 gap-y-0.5 self-end rounded-xl bg-surface/70 px-5 py-4 text-xs text-highlighted backdrop-blur-md md:grid">
     <template
       v-for="row in legend"
       :key="row.label"

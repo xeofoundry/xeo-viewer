@@ -121,7 +121,7 @@ function viewFit() {
 </script>
 
 <template>
-  <header class="pointer-events-auto flex items-center gap-4 self-start rounded-[21px] bg-surface/70 p-3 text-highlighted shadow-sm backdrop-blur-md">
+  <header class="pointer-events-auto flex items-center gap-4 self-start rounded-xl bg-surface/70 p-3 text-highlighted shadow-sm backdrop-blur-md">
     <img
       src="~/assets/xeokit-logo.svg"
       alt="xeokit"

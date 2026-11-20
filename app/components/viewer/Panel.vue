@@ -39,7 +39,7 @@ const style = computed<CSSProperties>(() => {
   <section
     ref="panel"
     :style="style"
-    class="pointer-events-auto relative flex flex-col overflow-hidden rounded-[21px] bg-surface/70 text-highlighted backdrop-blur-md"
+    class="pointer-events-auto relative flex flex-col overflow-hidden rounded-xl bg-surface/70 text-highlighted backdrop-blur-md"
     :class="floating ? 'shadow-xl' : ['shadow-sm', desktop ? 'max-h-max min-h-0 w-full flex-1' : 'w-full']"
     @pointerdown="floating && transform.bringToFront()"
   >

@@ -194,7 +194,7 @@ function peek(plane?: SectionPlane) {
     v-if="sliceMode"
     class="flex flex-col-reverse items-center gap-2 md:flex-col"
   >
-    <div class="pointer-events-auto flex items-center gap-1 rounded-[21px] bg-surface/70 p-3 text-highlighted shadow-sm backdrop-blur-md">
+    <div class="pointer-events-auto flex items-center gap-1 rounded-xl bg-surface/70 p-3 text-highlighted shadow-sm backdrop-blur-md">
       <UTooltip text="Add new slice">
         <UButton
           icon="i-lucide-plus"

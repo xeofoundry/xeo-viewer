@@ -100,7 +100,7 @@ watch(loading, (active) => {
 
     <section
       v-else-if="!hasModels"
-      class="relative flex w-full max-w-md flex-col gap-4 rounded-[21px] bg-surface/70 p-6 text-highlighted shadow-sm backdrop-blur-md"
+      class="relative flex w-full max-w-md flex-col gap-4 rounded-xl bg-surface/70 p-6 text-highlighted shadow-sm backdrop-blur-md"
     >
       <div class="flex flex-col items-center gap-2 text-center">
         <ViewerLogo class="h-11 w-15" />
@@ -152,7 +152,7 @@ watch(loading, (active) => {
 
   <div
     v-if="isOverDropZone"
-    class="pointer-events-none fixed inset-2 z-60 grid place-items-center rounded-[21px] border-2 border-dashed border-tint/60 bg-surface/40 text-lg text-highlighted backdrop-blur-sm"
+    class="pointer-events-none fixed inset-2 z-60 grid place-items-center rounded-xl border-2 border-dashed border-tint/60 bg-surface/40 text-lg text-highlighted backdrop-blur-sm"
   >
     Drop .xkt files to load
   </div>
